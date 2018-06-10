@@ -1,0 +1,17 @@
+triangle - always uses first vertes  then 2,3 3,4 4,5 etc
+quad - 1234, 3456, 5678 etc
+polygon -
+
+points, lines, surfaces
+
+3d objects -
+
+qualifiers - point size, line width, line stipple
+
+default alpha = 1
+indexed color - old , dont used
+glutPostRedisplay ?
+
+transformation:
+
+translation matrix , scale, Rotate
