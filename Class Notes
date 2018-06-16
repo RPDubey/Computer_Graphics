@@ -15,3 +15,15 @@ glutPostRedisplay ?
 transformation:
 
 translation matrix , scale, Rotate
+
+
+
+
+Enable Z buffer - GLUT_Depth(hw capability), glenable(GLUT_Depth_TEST)(can be enabled/disabled for individual objects too, but typically for whole scene)
+
+Enable Face culling - glEnable(GL_FACE_CULL), glFrontFace(GL_CCW/GL_CW) (define front face), glCullFace(GL_BACK/GL_FRONT)
+
+if we use only z buffer , order in which we specify polygon surfaces dosent matter. In face culling it does.
+
+
+TRS is the transformation order, always
