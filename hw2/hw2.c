@@ -1,7 +1,7 @@
 
 /*
-*@Filename: hw1.c
-*@brief:Implements Lorentz attractor for CSCI 5229 hw1
+*@Filename: hw2.c
+*@brief:Implements requirements for CSCI 5229 hw2
 *certain modifications and additions have been made to professor Schreuder's example 6
 *for this code
 *@author:Ravi Prakash Dubey

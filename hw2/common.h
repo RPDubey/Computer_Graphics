@@ -1,3 +1,10 @@
+/*
+*@Filename: common.h
+*@brief:contains some common definitions
+*@author:Ravi Prakash Dubey
+*@date:06/16/2018
+*/
+
 #ifndef COMMON_H
 #define COMMON_H
 
@@ -5,6 +12,10 @@
 //  Cosine and Sine in degrees
 #define COS(x) (cos((x)*3.1415927 / 180))
 #define SIN(x) (sin((x)*3.1415927 / 180))
+
+#define WSTEP (.25)
+#define FOV (55)
+#define DIM (8)
 
 //some standard colors
 #define YELLOW   \

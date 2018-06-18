@@ -1,3 +1,12 @@
+/*
+*@Filename: cube.c
+*@brief:Implements cube drawing function
+*certain modifications and additions have been made to professor Schreuder's examples
+*for this code
+*@author:Ravi Prakash Dubey
+*@date:06/16/2018
+*/
+
 #include "cube.h"
 #include <stdlib.h>
 //  OpenGL with prototypes for glext
@@ -13,7 +22,7 @@ int rev = 0; //  Reverse bottom of cube
  *     dimensions (dx,dy,dz)
  *     rotated th about the y axis
  */
-void cube(cube_t cube)
+void cube(const cube_t cube)
 {
     //  Save transformation
     glPushMatrix();

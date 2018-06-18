@@ -1,5 +1,13 @@
-#include "cylinder.h"
+/*
+*@Filename: cylinder.c
+*@brief:Implements cylinder drawing function
+*certain modifications and additions have been made to professor Schreuder's examples
+*for this code
+*@author:Ravi Prakash Dubey
+*@date:06/16/2018
+*/
 
+#include "cylinder.h"
 #include <stdlib.h>
 //  OpenGL with prototypes for glext
 #define GL_GLEXT_PROTOTYPES

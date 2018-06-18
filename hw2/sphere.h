@@ -1,3 +1,12 @@
+/*
+*@Filename: sphere.h
+*@brief:definition of function and data structure for sphere
+*certain modifications and additions have been made to professor Schreuder's examples
+*for this code
+*@author:Ravi Prakash Dubey
+*@date:06/16/2018
+*/
+
 #ifndef SPHERE_H
 #define SPHERE_H
 #include "common.h"
