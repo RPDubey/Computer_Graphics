@@ -1,0 +1,64 @@
+hw1: Lorentz Attractor
+Ravi Prakash Dubey
+CSCI4229/5229 Summer 2018
+
+Changes made for resubmission
+
+1)intensity value was missing from the light position coordinates. Corrected that
+2)added support to change the distance of light source from origin with 'o/O'
+3)change the leaf construction completely to fixed coordinate based. Normals are correct.
+
+
+The scene has following objects
+1) A model of a leaf
+2) an empty plant pot
+3) The words "CU" resting on a cylinder with CU logo texture
+4) A sphere with earth texture resing on a cone of mettalic texture
+5) Mona Lisa Potrait resting on a crate
+
+I have tried to create the Leaf model by getting the coordinates for general leaf shape by intersection of 2 circles. The curves in the leaf cross section have been created by using 1-sin(x)/x function, with the differential of this curve, rotated by 90 degrees, gives the normal for the vertices.
+
+For this scene only orthogonal mode is supported
+
+to build the binary
+1)make clean
+2)make
+
+to run the binary
+1)./hw2
+
+Key bindings  
+
+ 'z' cycles through following options
+    1. no axes (default)  
+    2. axis visible through body of the object
+
+ 'n' cycles through the objects of the scene individually
+
+  'v' zoom in - all modes
+  'c' zoom out - all modes
+
+  'arrows' Change view angle in orthographic and perspective projection modes
+
+  '0'   Reset to default values
+
+Light Controls
+
+  'l' switch the light source on off
+  'm' Toggle  the light source auto rotate
+  ',' rotate light source anti clockwise
+  '.' rotate light source anti clock wise
+  '/' to move light source up
+  '?' to move light source down
+  'o/O' to move light source closer, further from origin.
+
+  'f/F'  Decrease/increase ambient light
+  'g/G'  Decrease/increase diffuse light
+  'h/H'  Decrease/increase specular light
+  'j/J'  Decrease/increase emitted light
+  'k/K'  Decrease/increase shininess
+
+  'ESC' Exit application
+
+
+Time taken to finish the assignment: 35 hours

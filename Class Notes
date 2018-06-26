@@ -27,3 +27,25 @@ if we use only z buffer , order in which we specify polygon surfaces dosent matt
 
 
 TRS is the transformation order, always
+
+  for (double i = -ang; i < ang - STEP; i += STEP)
+        {
+
+            x1 = (r * COS(i) - a);
+            x2 = (r * COS(i + STEP) - a);
+            for (double j = 0; j <= 10; j++)
+            {
+
+                glTexCoord2f(0.1 * j, (SIN(ang) + SIN(i)) / 2 * SIN(ang));
+                x = -x1 + 0.2 * j * x1;
+                norm = (3.1415927 / 2.0) + atan(sin(x) - x * cos(x) / 2 * x * x);
+                glNormal3f(cos(norm), sin(norm), 0);
+                glVertex3d(x, 1 - (sin(x) / (2 * x)), SIN(i));
+
+                x = -x2 + 0.2 * j * x2;
+                norm = (3.1415927 / 2.0) + atan(sin(x) - x * cos(x) / 2 * x * x);
+                glNormal3f(cos(norm), sin(norm), 0);
+                glTexCoord2f(0.1 * j, (SIN(ang) + SIN(i + STEP)) / 2 * SIN(ang));
+                glVertex3d(x, 1 - (sin(x) / (2 * x)), SIN(i + STEP));
+            }
+        }
