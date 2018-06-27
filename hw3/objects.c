@@ -353,10 +353,10 @@ void leaf(void)
                       {-1.3, 1.8, 1.3 * z2},
                       {-1.0, 0.7, z1},
                       {0.0, 0.0, 0}};
-    // double a1 = 5;
-    // double a2 = 8;
-    // double norm[9] = {90, 90 + a1, 90 + a2, 90 + a1, 90, 90 - a1, 90 - a2, 90 - a1, 90};
-    // double norm1[9] = {-90, -90 + a1, -90 + a2, -90 + a1, -90, 90 * 3 - a1, 90 * 3 - a2, 90 * 3 - a1, 90};
+    double a1 = 5;
+    double a2 = 8;
+    double norm[9] = {90, 90 + a1, 90 + a2, 90 + a1, 90, 90 - a1, 90 - a2, 90 - a1, 90};
+    double norm1[9] = {-90, -90 + a1, -90 + a2, -90 + a1, -90, 90 * 3 - a1, 90 * 3 - a2, 90 * 3 - a1, 90};
 
     //Coordinates for leaf taken from //http://www.cs.northwestern.edu/~ago820/cs351/proj2.html
     double xmax = 1.3 * 2;
