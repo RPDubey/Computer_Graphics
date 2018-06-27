@@ -71,6 +71,7 @@ extern float rep;
 
 void Print(const char *format, ...)
 {
+
     char buf[LEN];
     char *ch = buf;
     va_list args;
@@ -285,7 +286,6 @@ void display()
 
     if (obj == 6)
     {
-
         glPushMatrix();
         glScaled(.5, .5, .5);
         logo();

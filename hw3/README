@@ -3,6 +3,9 @@ Ravi Prakash Dubey
 CSCI4229/5229 Summer 2018
 
 Changes made for resubmission
+Removed the curve from leaf surface, which was making it a concave surface.
+
+Changes made for resubmission
 
 1)intensity value was missing from the light position coordinates. Corrected that
 2)added support to change the distance of light source from origin with 'o/O'

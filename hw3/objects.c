@@ -304,6 +304,28 @@ void logo(void)
     glPopMatrix();
 }
 
+void rowsub(double v1[3], double v2[3], double *v3)
+{
+    *v3 = (v1[0] - v2[0]);
+    *(v3 + 1) = (v1[1] - v2[1]);
+    *(v3 + 2) = (v1[2] - v2[2]);
+}
+void unitNorm(double vp[3], double vm[3], double vn[3], double *n1)
+{
+
+    double v1[3] = {0, 0, 0};
+    double v2[3] = {0, 0, 0};
+    rowsub(vm, vn, v1);
+    rowsub(vm, vp, v2);
+
+    double len1 = pow((v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2]), 0.5);
+    double len2 = len1 * pow((v2[0] * v2[0] + v2[1] * v2[1] + v2[2] * v2[2]), 0.5);
+
+    *n1 = (v1[1] * v2[2] - v1[2] * v2[1]) / len2;
+    *(n1 + 1) = (v1[2] * v2[0] - v1[0] * v2[2]) / len2;
+    *(n1 + 2) = (v1[0] * v2[1] - v1[1] * v2[0]) / len2;
+}
+
 #define STEP (double)2
 void leaf(void)
 {
@@ -317,103 +339,64 @@ void leaf(void)
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
     glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emis);
 
-    double z = -0.25;
+    double a1 = 5;
+    double a2 = 8;
+    double z1 = SIN(a1);
+    double z2 = SIN(a2);
 
-    glColor3f(0, 1, 0);
-    double a1, a2, a3, a4;
-    a1 = 90 - ((180 / 3.1415927) * atan(z / 0.7));
-    a2 = 90 - ((180 / 3.1415927) * atan(z / 1.1));
-    a3 = 90 + ((180 / 3.1415927) * atan(z));
-    a4 = 90 + ((180 / 3.1415927) * atan(z / 1.2));
+    double v[9][3] = {{0.0, 0.0, 0},
+                      {1.0, 0.7, z1},
+                      {1.3, 1.8, 1.3 * z2},
+                      {1.0, 2.8, z1},
+                      {0.0, 4.0, 0},
+                      {-1.0, 2.8, z1},
+                      {-1.3, 1.8, 1.3 * z2},
+                      {-1.0, 0.7, z1},
+                      {0.0, 0.0, 0}};
+    // double a1 = 5;
+    // double a2 = 8;
+    // double norm[9] = {90, 90 + a1, 90 + a2, 90 + a1, 90, 90 - a1, 90 - a2, 90 - a1, 90};
+    // double norm1[9] = {-90, -90 + a1, -90 + a2, -90 + a1, -90, 90 * 3 - a1, 90 * 3 - a2, 90 * 3 - a1, 90};
 
     //Coordinates for leaf taken from //http://www.cs.northwestern.edu/~ago820/cs351/proj2.html
-    glBegin(GL_POLYGON);
-    glNormal3f(0, COS(a1), SIN(a1));
-    glTexCoord2f(0.5, 0);
-    glVertex3f(0.0, 0.0, 2 * z);
+    double xmax = 1.3 * 2;
+    double ymax = 4;
+    glColor3f(0, 1, 0);
+    glBegin(GL_QUAD_STRIP);
 
-    glNormal3f(0, COS(a2), SIN(a2));
-    glTexCoord2f(.5 + 1.0 / 2.6, .7 / 4.0);
-    glVertex3f(1.0, 0.7, z);
+    for (int i = 0; i < 5; i++)
+    {
+        glNormal3f(COS(norm[8 - i]), 0, SIN(norm[8 - i]));
+        glTexCoord2f(.5 + v[8 - i][0] / xmax, v[8 - i][1] / ymax);
+        glVertex3dv(v[8 - i]);
 
-    glNormal3f(0, 0, 1);
-    glTexCoord2f(.5 + 1.3 / 2.6, 1.8 / 4.0);
-    glVertex3f(1.3, 1.8, 0);
-
-    glNormal3f(0, COS(a3), SIN(a3));
-    glTexCoord2f(.5 + 1.0 / 2.6, 2.8 / 4.0);
-    glVertex3f(1.0, 2.8, z);
-
-    glNormal3f(0, COS(a4), SIN(a4));
-    glTexCoord2f(.5, 4.0 / 4.0);
-    glVertex3f(0.0, 4.0, 2 * z);
-
-    glNormal3f(0, COS(a3), SIN(a3));
-    glTexCoord2f(.5 - 1.0 / 2.6, 2.8 / 4.0);
-    glVertex3f(-1.0, 2.8, z);
-
-    glNormal3f(0, 0, 1);
-    glTexCoord2f(.5 - 1.3 / 2.6, 1.8 / 4.0);
-    glVertex3f(-1.3, 1.8, 0);
-
-    glNormal3f(0, COS(a2), SIN(a2));
-    glTexCoord2f(.5 - 1.0 / 2.6, .7 / 4.0);
-    glVertex3f(-1.0, 0.7, z);
-
-    glNormal3f(0, COS(a1), SIN(a1));
-    glTexCoord2f(.5, 0.0);
-    glVertex3f(0.0, 0.0, 2 * z);
+        glNormal3f(COS(norm[i]), 0, SIN(norm[i]));
+        glTexCoord2f(.5 + v[i][0] / xmax, v[i][1] / ymax);
+        glVertex3dv(v[i]);
+    }
 
     glEnd();
 
-    a1 += 180;
-    a2 += 180;
-    a3 += 180;
-    a4 += 180;
+    // glColor3f(.2, .8, .2);
+    // glTranslated(0, 0, -.001);
+    // // glNormal3f(0.0, 0.0, -1.0);
+    // // glEnable(GL_POLYGON_OFFSET_FILL); //not giving desired effect?
+    // // glPolygonOffset(2, 2);
+    // glBegin(GL_QUAD_STRIP);
 
-    glTranslated(0, 0, -.005);
-    // glEnable(GL_POLYGON_OFFSET_FILL);//not working??
-    // glPolygonOffset(2.0f, 2.0f);
+    // for (int i = 8; i > 3; i--)
+    // {
+    //     glNormal3f(COS(norm1[8 - i]), 0, SIN(norm1[8 - i]));
+    //     // glNormal3f(COS(180 + norm[8 - i]), 0, SIN(180 + norm[8 - i]));
+    //     glTexCoord2f(.5 + v[8 - i][0] / xmax, v[8 - i][1] / ymax);
+    //     glVertex3dv(v[8 - i]);
 
-    glBegin(GL_POLYGON);
-    glNormal3f(0, COS(a1), SIN(a1));
-    glTexCoord2f(0.5, 0);
-    glVertex3f(0.0, 0.0, 2 * z);
-
-    glNormal3f(0, COS(a2), SIN(a2));
-    glTexCoord2f(.5 + 1.0 / 2.6, .7 / 4.0);
-    glVertex3f(1.0, 0.7, z);
-
-    glNormal3f(0, 0, -1);
-    glTexCoord2f(.5 + 1.3 / 2.6, 1.8 / 4.0);
-    glVertex3f(1.3, 1.8, 0);
-
-    glNormal3f(0, COS(a3), SIN(a3));
-    glTexCoord2f(.5 + 1.0 / 2.6, 2.8 / 4.0);
-    glVertex3f(1.0, 2.8, z);
-
-    glNormal3f(0, COS(a4), SIN(a4));
-    glTexCoord2f(.5, 4.0 / 4.0);
-    glVertex3f(0.0, 4.0, 2 * z);
-
-    glNormal3f(0, COS(a3), SIN(a3));
-    glTexCoord2f(.5 - 1.0 / 2.6, 2.8 / 4.0);
-    glVertex3f(-1.0, 2.8, z);
-
-    glNormal3f(0, 0, -1);
-    glTexCoord2f(.5 - 1.3 / 2.6, 1.8 / 4.0);
-    glVertex3f(-1.3, 1.8, 0);
-
-    glNormal3f(0, COS(a2), SIN(a2));
-    glTexCoord2f(.5 - 1.0 / 2.6, .7 / 4.0);
-    glVertex3f(-1.0, 0.7, z);
-
-    glNormal3f(0, COS(a1), SIN(a1));
-    glTexCoord2f(.5, 0.0);
-    glVertex3f(0.0, 0.0, 2 * z);
+    //     glNormal3f(COS(norm[i]), 0, SIN(norm1[i]));
+    //     glTexCoord2f(.5 + v[i][0] / xmax, v[i][1] / ymax);
+    //     glVertex3dv(v[i]);
+    // }
 
     glEnd();
-    glDisable(GL_POLYGON_OFFSET_FILL);
 
     glPopMatrix();
 }
