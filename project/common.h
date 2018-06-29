@@ -19,6 +19,7 @@
 #define FOV (55)
 #define DIM (100)
 #define NUMBER_OF_OBJET (7)
+#define NUMBER_OF_TEXTURE (30)
 
 #define ENABLE_TRANSPARENCY                \
     {                                      \

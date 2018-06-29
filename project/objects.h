@@ -14,18 +14,16 @@
 
 typedef struct
 {
-    cube_t chair_cube_desc[8];
-    cylinder_t chair_cyl_desc[3];
-    sphere_t chair_sph_desc[2];
-
-    // transform_t cyl[7];
-    // transform_t cube[4]
-
+    transform_t cyl[7];
+    transform_t cube[4];
+    transform_t cur;
+    curve_t curv;
 } chair_t;
 
 typedef struct
 {
-    cube_t table_desc[9];
+    // cube_t table_desc[9];
+
 } table_t;
 
 typedef struct
@@ -36,7 +34,7 @@ typedef struct
 } lamp_t;
 
 void table(table_t specs);
-void chair(chair_t specs);
+void chair(chair_t chair);
 void lamp(lamp_t specs);
 void letterBlock(int);
 void logo(void);

@@ -17,7 +17,7 @@
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glut.h>
 
-unsigned int texture[NUMBER_OF_OBJET + 14]; //  Texture names
+unsigned int texture[NUMBER_OF_TEXTURE]; //  Texture names
 
 extern double Ex1;
 extern double Ey1;
@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
       texture[14] = LoadTexBMP("./texture/book1.bmp");
       texture[15] = LoadTexBMP("./texture/book2.bmp");
       texture[16] = LoadTexBMP("./texture/sofa.bmp");
+      texture[17] = LoadTexBMP("./texture/water.bmp");
 
       //  Pass control to GLUT so it can interact with the user
       glutMainLoop();

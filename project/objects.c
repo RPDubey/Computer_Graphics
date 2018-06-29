@@ -15,8 +15,8 @@
 #include <GL/glut.h>
 #include "common.h"
 
-extern float shiny;                               // Shininess (value)
-extern unsigned int texture[NUMBER_OF_OBJET + 4]; //  Texture names
+extern float shiny;                             // Shininess (value)
+extern unsigned int texture[NUMBER_OF_TEXTURE]; //  Texture names
 extern float rep;
 extern double dim;
 
@@ -24,18 +24,45 @@ void table(table_t specs)
 {
     for (int i = 0; i < 9; i++)
     {
-        cube(specs.table_desc[i]);
     }
 }
 
-void chair(chair_t specs)
+void chair(chair_t chair)
 {
-    for (int i = 0; i < 8; i++)
-        cube(specs.chair_cube_desc[i]);
-    for (int i = 0; i < 3; i++)
-        cylinder(specs.chair_cyl_desc[i]);
-    for (int i = 0; i < 2; i++)
-        sphere(specs.chair_sph_desc[i]);
+    material_t stdmat = {shiny, WHITE, BLACK};
+
+    for (int i = 0; i < 7; i++)
+    {
+        glBindTexture(GL_TEXTURE_2D, texture[16]);
+        if (i == 0)
+        {
+
+            glPushMatrix();
+            glTranslated(chair.cur.t[0], chair.cur.t[1], chair.cur.t[2]);
+            glRotated(chair.cur.r[0], chair.cur.r[1], chair.cur.r[2], chair.cur.r[3]);
+            glScaled(chair.cur.s[0], chair.cur.s[1], chair.cur.s[2]);
+            Curve(chair.curv);
+            glPopMatrix();
+        }
+        if (i < 4)
+        {
+            glPushMatrix();
+            glTranslated(chair.cube[i].t[0], chair.cube[i].t[1], chair.cube[i].t[2]);
+            glRotated(chair.cube[i].r[0], chair.cube[i].r[1], chair.cube[i].r[2], chair.cube[i].r[3]);
+            glScaled(chair.cube[i].s[0], chair.cube[i].s[1], chair.cube[i].s[2]);
+            unitcube(stdmat);
+            glPopMatrix();
+        }
+        if (i > 2)
+            glBindTexture(GL_TEXTURE_2D, texture[4]);
+
+        glPushMatrix();
+        glTranslated(chair.cyl[i].t[0], chair.cyl[i].t[1], chair.cyl[i].t[2]);
+        glRotated(chair.cyl[i].r[0], chair.cyl[i].r[1], chair.cyl[i].r[2], chair.cyl[i].r[3]);
+        glScaled(chair.cyl[i].s[0], chair.cyl[i].s[1], chair.cyl[i].s[2]);
+        unitcylinder(stdmat);
+        glPopMatrix();
+    }
 }
 
 void lamp(lamp_t specs)
@@ -305,6 +332,27 @@ void logo(void)
 
     glPopMatrix();
 }
+void rowsub(double v1[3], double v2[3], double *v3)
+{
+    *v3 = (v1[0] - v2[0]);
+    *(v3 + 1) = (v1[1] - v2[1]);
+    *(v3 + 2) = (v1[2] - v2[2]);
+}
+void unitNorm(double vp[3], double vm[3], double vn[3], double *n1)
+{
+
+    double v1[3] = {0, 0, 0};
+    double v2[3] = {0, 0, 0};
+    rowsub(vm, vn, v1);
+    rowsub(vm, vp, v2);
+
+    double len1 = pow((v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2]), 0.5);
+    double len2 = len1 * pow((v2[0] * v2[0] + v2[1] * v2[1] + v2[2] * v2[2]), 0.5);
+
+    *n1 = (v1[1] * v2[2] - v1[2] * v2[1]) / len2;
+    *(n1 + 1) = (v1[2] * v2[0] - v1[0] * v2[2]) / len2;
+    *(n1 + 2) = (v1[0] * v2[1] - v1[1] * v2[0]) / len2;
+}
 
 #define STEP (double)2
 void leaf(void)
@@ -319,106 +367,191 @@ void leaf(void)
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
     glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emis);
 
-    double z = -0.25;
+    double x[5] = {0, 1, 1.3, 1, 0};
+    double y[5] = {0, .7, 1.8, 2.8, 4.0};
+    double r = 10.0;
+    double ang[5];
+    double z[5];
+    double normr[5][3];
+    // double norml[5][3];
 
-    glColor3f(0, 1, 0);
-    double a1, a2, a3, a4;
-    a1 = 90 - ((180 / 3.1415927) * atan(z / 0.7));
-    a2 = 90 - ((180 / 3.1415927) * atan(z / 1.1));
-    a3 = 90 + ((180 / 3.1415927) * atan(z));
-    a4 = 90 + ((180 / 3.1415927) * atan(z / 1.2));
+    double depth = 1.2;
+    double a; //angle from centre of leaf to edge, along its breadth
+    double val;
+    for (int i = 0; i < 5; i++)
+    {
+        ang[i] = (y[i] - y[0]) / r;
+        z[i] = -r + r * cos(ang[i]);
+
+        if (x[i] != 0)
+            a = acos((2 * depth * z[i] - z[i]) / x[i]);
+        else
+            a = 3.14 / 2;
+
+        normr[i][0] = -cos(a);
+        normr[i][1] = sin(ang[i]);
+        normr[i][2] = cos(ang[i] + sin(a));
+        val = pow((pow(normr[i][0], 2),
+                   pow(normr[i][1], 2),
+                   pow(normr[i][2], 2)),
+                  .5);
+
+        normr[i][0] /= val;
+        normr[i][0] *= -1;
+
+        normr[i][1] /= val;
+        normr[i][2] /= val;
+    }
 
     //Coordinates for leaf taken from //http://www.cs.northwestern.edu/~ago820/cs351/proj2.html
-    glBegin(GL_POLYGON);
-    glNormal3f(0, COS(a1), SIN(a1));
-    glTexCoord2f(0.5, 0);
-    glVertex3f(0.0, 0.0, 2 * z);
 
-    glNormal3f(0, COS(a2), SIN(a2));
-    glTexCoord2f(.5 + 1.0 / 2.6, .7 / 4.0);
-    glVertex3f(1.0, 0.7, z);
+    glColor3f(1, 1, 1);
+    glBegin(GL_QUAD_STRIP);
 
-    glNormal3f(0, 0, 1);
-    glTexCoord2f(.5 + 1.3 / 2.6, 1.8 / 4.0);
-    glVertex3f(1.3, 1.8, 0);
+    for (int i = 0; i < 5; i++)
+    {
+        glNormal3dv(normr[0]);
+        glTexCoord2f(.5, y[i] / 4.0);
+        glVertex3d(x[0], y[i], i == 4 ? .5 * z[i] * (1 + 2 * depth) : 2 * depth * z[i]);
 
-    glNormal3f(0, COS(a3), SIN(a3));
-    glTexCoord2f(.5 + 1.0 / 2.6, 2.8 / 4.0);
-    glVertex3f(1.0, 2.8, z);
-
-    glNormal3f(0, COS(a4), SIN(a4));
-    glTexCoord2f(.5, 4.0 / 4.0);
-    glVertex3f(0.0, 4.0, 2 * z);
-
-    glNormal3f(0, COS(a3), SIN(a3));
-    glTexCoord2f(.5 - 1.0 / 2.6, 2.8 / 4.0);
-    glVertex3f(-1.0, 2.8, z);
-
-    glNormal3f(0, 0, 1);
-    glTexCoord2f(.5 - 1.3 / 2.6, 1.8 / 4.0);
-    glVertex3f(-1.3, 1.8, 0);
-
-    glNormal3f(0, COS(a2), SIN(a2));
-    glTexCoord2f(.5 - 1.0 / 2.6, .7 / 4.0);
-    glVertex3f(-1.0, 0.7, z);
-
-    glNormal3f(0, COS(a1), SIN(a1));
-    glTexCoord2f(.5, 0.0);
-    glVertex3f(0.0, 0.0, 2 * z);
+        glNormal3dv(normr[i]);
+        glTexCoord2f((.5 + x[i] / 2.6), y[i] / 4.0);
+        glVertex3d(x[i], y[i], i == 4 ? (z[i] + 2 * depth * z[i]) / 2.0 : z[i]);
+    }
 
     glEnd();
 
-    a1 += 180;
-    a2 += 180;
-    a3 += 180;
-    a4 += 180;
+    glBegin(GL_QUAD_STRIP);
 
-    glTranslated(0, 0, -.005);
-    // glEnable(GL_POLYGON_OFFSET_FILL);//not working??
-    // glPolygonOffset(2.0f, 2.0f);
+    for (int i = 0; i < 5; i++)
+    {
+        glNormal3d(-normr[i][0], normr[i][1], normr[i][2]);
+        glTexCoord2f((.5 - x[i] / 2.6), y[i] / 4.0);
+        glVertex3d(-x[i], y[i], i == 4 ? .5 * z[i] * (1 + 2 * depth) : z[i]);
 
-    glBegin(GL_POLYGON);
-    glNormal3f(0, COS(a1), SIN(a1));
-    glTexCoord2f(0.5, 0);
-    glVertex3f(0.0, 0.0, 2 * z);
-
-    glNormal3f(0, COS(a2), SIN(a2));
-    glTexCoord2f(.5 + 1.0 / 2.6, .7 / 4.0);
-    glVertex3f(1.0, 0.7, z);
-
-    glNormal3f(0, 0, -1);
-    glTexCoord2f(.5 + 1.3 / 2.6, 1.8 / 4.0);
-    glVertex3f(1.3, 1.8, 0);
-
-    glNormal3f(0, COS(a3), SIN(a3));
-    glTexCoord2f(.5 + 1.0 / 2.6, 2.8 / 4.0);
-    glVertex3f(1.0, 2.8, z);
-
-    glNormal3f(0, COS(a4), SIN(a4));
-    glTexCoord2f(.5, 4.0 / 4.0);
-    glVertex3f(0.0, 4.0, 2 * z);
-
-    glNormal3f(0, COS(a3), SIN(a3));
-    glTexCoord2f(.5 - 1.0 / 2.6, 2.8 / 4.0);
-    glVertex3f(-1.0, 2.8, z);
-
-    glNormal3f(0, 0, -1);
-    glTexCoord2f(.5 - 1.3 / 2.6, 1.8 / 4.0);
-    glVertex3f(-1.3, 1.8, 0);
-
-    glNormal3f(0, COS(a2), SIN(a2));
-    glTexCoord2f(.5 - 1.0 / 2.6, .7 / 4.0);
-    glVertex3f(-1.0, 0.7, z);
-
-    glNormal3f(0, COS(a1), SIN(a1));
-    glTexCoord2f(.5, 0.0);
-    glVertex3f(0.0, 0.0, 2 * z);
+        glNormal3dv(normr[0]);
+        glTexCoord2f(.5, y[i] / 4.0);
+        glVertex3d(0, y[i], i == 4 ? .5 * z[i] * (1 + 2 * depth) : 2 * depth * z[i]);
+    }
 
     glEnd();
-    glDisable(GL_POLYGON_OFFSET_FILL);
 
     glPopMatrix();
 }
+
+#define STEP (double)2
+// void leaf(void)
+// {
+//     glBindTexture(GL_TEXTURE_2D, texture[3]);
+
+//     glPushMatrix();
+
+//     float spec[4] = {1, 1, 1, 1};
+//     float emis[4] = {0, 0, 0, 1};
+//     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shiny);
+//     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
+//     glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emis);
+
+//     double z = -0.25;
+
+//     glColor3f(0, 1, 0);
+//     double a1, a2, a3, a4;
+//     a1 = 90 - ((180 / 3.1415927) * atan(z / 0.7));
+//     a2 = 90 - ((180 / 3.1415927) * atan(z / 1.1));
+//     a3 = 90 + ((180 / 3.1415927) * atan(z));
+//     a4 = 90 + ((180 / 3.1415927) * atan(z / 1.2));
+
+//     //Coordinates for leaf taken from //http://www.cs.northwestern.edu/~ago820/cs351/proj2.html
+//     glBegin(GL_POLYGON);
+//     glNormal3f(0, COS(a1), SIN(a1));
+//     glTexCoord2f(0.5, 0);
+//     glVertex3f(0.0, 0.0, 2 * z);
+
+//     glNormal3f(0, COS(a2), SIN(a2));
+//     glTexCoord2f(.5 + 1.0 / 2.6, .7 / 4.0);
+//     glVertex3f(1.0, 0.7, z);
+
+//     glNormal3f(0, 0, 1);
+//     glTexCoord2f(.5 + 1.3 / 2.6, 1.8 / 4.0);
+//     glVertex3f(1.3, 1.8, 0);
+
+//     glNormal3f(0, COS(a3), SIN(a3));
+//     glTexCoord2f(.5 + 1.0 / 2.6, 2.8 / 4.0);
+//     glVertex3f(1.0, 2.8, z);
+
+//     glNormal3f(0, COS(a4), SIN(a4));
+//     glTexCoord2f(.5, 4.0 / 4.0);
+//     glVertex3f(0.0, 4.0, 2 * z);
+
+//     glNormal3f(0, COS(a3), SIN(a3));
+//     glTexCoord2f(.5 - 1.0 / 2.6, 2.8 / 4.0);
+//     glVertex3f(-1.0, 2.8, z);
+
+//     glNormal3f(0, 0, 1);
+//     glTexCoord2f(.5 - 1.3 / 2.6, 1.8 / 4.0);
+//     glVertex3f(-1.3, 1.8, 0);
+
+//     glNormal3f(0, COS(a2), SIN(a2));
+//     glTexCoord2f(.5 - 1.0 / 2.6, .7 / 4.0);
+//     glVertex3f(-1.0, 0.7, z);
+
+//     glNormal3f(0, COS(a1), SIN(a1));
+//     glTexCoord2f(.5, 0.0);
+//     glVertex3f(0.0, 0.0, 2 * z);
+
+//     glEnd();
+
+//     a1 += 180;
+//     a2 += 180;
+//     a3 += 180;
+//     a4 += 180;
+
+//     glTranslated(0, 0, -.005);
+//     // glEnable(GL_POLYGON_OFFSET_FILL);//not working??
+//     // glPolygonOffset(2.0f, 2.0f);
+
+//     glBegin(GL_POLYGON);
+//     glNormal3f(0, COS(a1), SIN(a1));
+//     glTexCoord2f(0.5, 0);
+//     glVertex3f(0.0, 0.0, 2 * z);
+
+//     glNormal3f(0, COS(a2), SIN(a2));
+//     glTexCoord2f(.5 + 1.0 / 2.6, .7 / 4.0);
+//     glVertex3f(1.0, 0.7, z);
+
+//     glNormal3f(0, 0, -1);
+//     glTexCoord2f(.5 + 1.3 / 2.6, 1.8 / 4.0);
+//     glVertex3f(1.3, 1.8, 0);
+
+//     glNormal3f(0, COS(a3), SIN(a3));
+//     glTexCoord2f(.5 + 1.0 / 2.6, 2.8 / 4.0);
+//     glVertex3f(1.0, 2.8, z);
+
+//     glNormal3f(0, COS(a4), SIN(a4));
+//     glTexCoord2f(.5, 4.0 / 4.0);
+//     glVertex3f(0.0, 4.0, 2 * z);
+
+//     glNormal3f(0, COS(a3), SIN(a3));
+//     glTexCoord2f(.5 - 1.0 / 2.6, 2.8 / 4.0);
+//     glVertex3f(-1.0, 2.8, z);
+
+//     glNormal3f(0, 0, -1);
+//     glTexCoord2f(.5 - 1.3 / 2.6, 1.8 / 4.0);
+//     glVertex3f(-1.3, 1.8, 0);
+
+//     glNormal3f(0, COS(a2), SIN(a2));
+//     glTexCoord2f(.5 - 1.0 / 2.6, .7 / 4.0);
+//     glVertex3f(-1.0, 0.7, z);
+
+//     glNormal3f(0, COS(a1), SIN(a1));
+//     glTexCoord2f(.5, 0.0);
+//     glVertex3f(0.0, 0.0, 2 * z);
+
+//     glEnd();
+//     glDisable(GL_POLYGON_OFFSET_FILL);
+
+//     glPopMatrix();
+// }
 
 void potrait(void)
 {

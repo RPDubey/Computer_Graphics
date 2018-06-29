@@ -62,7 +62,7 @@ extern int specular;  // Specular intensity (%)
 extern int shininess; // Shininess (power of two)
 extern float shiny;   // Shininess (value)
 
-extern unsigned int texture[NUMBER_OF_OBJET + 14]; //  Texture names
+extern unsigned int texture[NUMBER_OF_TEXTURE]; //  Texture names
 extern float rep;
 
 room_dim_t room = {.75 * DIM, .75 * DIM, .5 * DIM};
@@ -383,126 +383,75 @@ void display()
         glPopMatrix();
     }
 
-    if (obj == 3) //Table and chair
+    if (obj == 3) // chair
     {
 
-        glBindTexture(GL_TEXTURE_2D, texture[16]);
+        //chair
+        chair_t specs = {
+            //cylinder
+            {
+                {{-14, 12, 0}, {90, 1, 0, 0}, {3, 8, 2}},
+                {{14, 12, 0}, {90, 1, 0, 0}, {3, 8, 2}},
+                {{0, 30, -15}, {90, 0, 0, 1}, {3, 16, 3}},
+                {{-12, -2, 6}, {0, 0, 0, 0}, {1, 2, 1}},
+                {{12, -2, 6}, {0, 0, 0, 0}, {1, 2, 1}},
+                {{-12, -2, -6}, {0, 0, 0, 0}, {1, 2, 1}},
+                {{12, -2, -6}, {0, 0, 0, 0}, {1, 2, 1}},
 
-        material_t stdmat = {shiny, WHITE, BLACK};
+            },
+            //cube
+            {
+                {{0, 2, 0}, {90, 0, 0, 0}, {12, 2, 8}},
+                {{14, 6, 0}, {90, 0, 0, 1}, {6, 2, 8}},
+                {{-14, 6, 0}, {90, 0, 0, 1}, {6, 2, 8}},
+                {{0, 10, -10}, {90, 1, 0, 0}, {16, 2, 10}}
 
-        glPushMatrix();
-        glTranslated(0, 2, 0);
-        glRotated(90, 0, 0, 0);
-        glScaled(12, 2, 8);
-        unitcube(stdmat);
-        glPopMatrix();
+            },
+            {{0, 20, -10}, {0, 0, 0, 0}, {1, 1, 1}},
+            {16, 16, 12, 45, WHITE, 1}
 
-        glPushMatrix();
-        glTranslated(14, 6, 0);
-        glRotated(90, 0, 0, 1);
-        glScaled(6, 2, 8);
-        unitcube(stdmat);
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslated(-14, 6, 0);
-        glRotated(90, 0, 0, 1);
-        glScaled(6, 2, 8);
-        unitcube(stdmat);
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslated(0, 10, -10);
-        glRotated(90, 1, 0, 0);
-        glScaled(16, 2, 10);
-        unitcube(stdmat);
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslated(-14, 12, 0);
-        glRotated(90, 1, 0, 0);
-        glScaled(3, 8, 2);
-        unitcylinder(stdmat);
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslated(14, 12, 0);
-        glRotated(90, 1, 0, 0);
-        glScaled(3, 8, 2);
-        unitcylinder(stdmat);
-        glPopMatrix();
-
-        glPushMatrix();
-        double l = 16;
-        double rb = 16;
-        double rs = 12;
-        double ang = 45;
-
-        glTranslated(0, 20, -10);
-        glRotated(180, 0, 0, 0);
-        glScaled(1, 1, 1);
-
-        curve_t prop = {l,
-                        rb, rs,
-                        ang,
-                        WHITE,
-                        1};
-
-        Curve(prop);
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslated(0, 30, -15);
-        glRotated(90, 0, 0, 1);
-        glScaled(3, 16, 3);
-        unitcylinder(stdmat);
-        glPopMatrix();
-
-        glBindTexture(GL_TEXTURE_2D, texture[4]);
-        glPushMatrix();
-        glTranslated(-12, -2, 6);
-        glScaled(1, 2, 1);
-        unitcylinder(stdmat);
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslated(12, -2, 6);
-        glScaled(1, 2, 1);
-        unitcylinder(stdmat);
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslated(-12, -2, -6);
-        glScaled(1, 2, 1);
-        unitcylinder(stdmat);
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslated(12, -2, -6);
-        glScaled(1, 2, 1);
-        unitcylinder(stdmat);
-        glPopMatrix();
+        };
+        chair(specs);
     }
 
-    if (obj == 4) //lamp
+    if (obj == 4) //table
     {
-        glBindTexture(GL_TEXTURE_2D, texture[4]);
+
+        //stand
+        glPushMatrix();
+        glBindTexture(GL_TEXTURE_2D, texture[12]);
         material_t stdmat = {shiny, WHITE, BLACK};
+
+        curve_t stand = {4, 10, 8, 180, {1, 1, 1, .2}, 1};
+        Curve(stand);
         unitcone(stdmat);
+        glPopMatrix();
+
+        ENABLE_TRANSPARENCY;
+        //transparent
+        glPushMatrix();
+        glBindTexture(GL_TEXTURE_2D, texture[17]);
+        glTranslated(0, 10.5, -10);
+        glRotated(180, 0, 0, 0);
+        glScaled(20, 1, 20);
+        unitcylinder(stdmat);
+        glPopMatrix();
+        glDisable(GL_BLEND);
+        glDepthMask(1);
     }
 
-    if (obj == 5) //text
+    if (obj == 5) //potted plant
     {
         glPushMatrix();
+        glScaled(10, 10, 10);
         leaf();
         glPopMatrix();
     }
 
-    if (obj == 6) //potted plant
+    if (obj == 6) //text
     {
 
         glPushMatrix();
-        glScaled(.5, .5, .5);
         logo();
         glPopMatrix();
     }
