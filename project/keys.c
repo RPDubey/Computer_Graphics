@@ -25,7 +25,7 @@ double dim = DIM; // Dimensions of orthogonal box
 double asp = 1;   //aspect ration
 int fov = FOV;    //  Field of view (for perspective)
 int mode = 1;     //orthogonal,perspective,first person
-int obj = 5;      //object to be displayed
+int obj = 6;      //object to be displayed
 
 //light related
 int light = 1; //light source on/off

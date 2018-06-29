@@ -355,11 +355,12 @@ void unitNorm(double vp[3], double vm[3], double vn[3], double *n1)
 }
 
 #define STEP (double)2
-void leaf(void)
+void leaf(double r, double depth)
 {
-    glBindTexture(GL_TEXTURE_2D, texture[3]);
-
     glPushMatrix();
+
+    // double r = 10.0;
+    // double depth = 1.2;
 
     float spec[4] = {1, 1, 1, 1};
     float emis[4] = {0, 0, 0, 1};
@@ -369,13 +370,11 @@ void leaf(void)
 
     double x[5] = {0, 1, 1.3, 1, 0};
     double y[5] = {0, .7, 1.8, 2.8, 4.0};
-    double r = 10.0;
     double ang[5];
     double z[5];
     double normr[5][3];
     // double norml[5][3];
 
-    double depth = 1.2;
     double a; //angle from centre of leaf to edge, along its breadth
     double val;
     for (int i = 0; i < 5; i++)
@@ -439,119 +438,50 @@ void leaf(void)
     glPopMatrix();
 }
 
-#define STEP (double)2
-// void leaf(void)
-// {
-//     glBindTexture(GL_TEXTURE_2D, texture[3]);
+void Plant(plant_t pl)
+{
 
-//     glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, texture[pl.leaf]);
+    for (int i = 0; i < pl.num; i++)
+    {
 
-//     float spec[4] = {1, 1, 1, 1};
-//     float emis[4] = {0, 0, 0, 1};
-//     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shiny);
-//     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
-//     glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emis);
+        glPushMatrix();
+        glTranslated((pl.l + i)->tr.t[0], (pl.l + i)->tr.t[1], (pl.l + i)->tr.t[2]);
+        glRotated((pl.l + i)->tr.r[0], (pl.l + i)->tr.r[1], (pl.l + i)->tr.r[2], (pl.l + i)->tr.r[3]);
+        glRotated((pl.l + i)->ti[0], (pl.l + i)->ti[1], (pl.l + i)->ti[2], (pl.l + i)->ti[3]);
+        glScaled((pl.l + i)->tr.s[0], (pl.l + i)->tr.s[1], (pl.l + i)->tr.s[2]);
+        leaf((pl.l + i)->r, (pl.l + i)->d);
+        glPopMatrix();
+    }
 
-//     double z = -0.25;
+    material_t stdmat = {shiny, WHITE, BLACK};
+    //stem
+    glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, texture[pl.stem]);
+    glTranslated(pl.st.t[0], pl.st.t[1], pl.st.t[2]);
+    glRotated(pl.st.r[0], pl.st.r[1], pl.st.r[2], pl.st.r[3]);
+    glScaled(pl.st.s[0], pl.st.s[1], pl.st.s[2]);
+    unitcylinder(stdmat);
+    glPopMatrix();
 
-//     glColor3f(0, 1, 0);
-//     double a1, a2, a3, a4;
-//     a1 = 90 - ((180 / 3.1415927) * atan(z / 0.7));
-//     a2 = 90 - ((180 / 3.1415927) * atan(z / 1.1));
-//     a3 = 90 + ((180 / 3.1415927) * atan(z));
-//     a4 = 90 + ((180 / 3.1415927) * atan(z / 1.2));
+    //pot
+    glBindTexture(GL_TEXTURE_2D, texture[pl.pt]);
+    glPushMatrix();
+    glTranslated(pl.p.t[0], pl.p.t[1], pl.p.t[2]);
+    glRotated(pl.p.r[0], pl.p.r[1], pl.p.r[2], pl.p.r[3]);
+    glScaled(pl.p.s[0], pl.p.s[1], pl.p.s[2]);
+    cone(pl.pot);
+    glPopMatrix();
 
-//     //Coordinates for leaf taken from //http://www.cs.northwestern.edu/~ago820/cs351/proj2.html
-//     glBegin(GL_POLYGON);
-//     glNormal3f(0, COS(a1), SIN(a1));
-//     glTexCoord2f(0.5, 0);
-//     glVertex3f(0.0, 0.0, 2 * z);
-
-//     glNormal3f(0, COS(a2), SIN(a2));
-//     glTexCoord2f(.5 + 1.0 / 2.6, .7 / 4.0);
-//     glVertex3f(1.0, 0.7, z);
-
-//     glNormal3f(0, 0, 1);
-//     glTexCoord2f(.5 + 1.3 / 2.6, 1.8 / 4.0);
-//     glVertex3f(1.3, 1.8, 0);
-
-//     glNormal3f(0, COS(a3), SIN(a3));
-//     glTexCoord2f(.5 + 1.0 / 2.6, 2.8 / 4.0);
-//     glVertex3f(1.0, 2.8, z);
-
-//     glNormal3f(0, COS(a4), SIN(a4));
-//     glTexCoord2f(.5, 4.0 / 4.0);
-//     glVertex3f(0.0, 4.0, 2 * z);
-
-//     glNormal3f(0, COS(a3), SIN(a3));
-//     glTexCoord2f(.5 - 1.0 / 2.6, 2.8 / 4.0);
-//     glVertex3f(-1.0, 2.8, z);
-
-//     glNormal3f(0, 0, 1);
-//     glTexCoord2f(.5 - 1.3 / 2.6, 1.8 / 4.0);
-//     glVertex3f(-1.3, 1.8, 0);
-
-//     glNormal3f(0, COS(a2), SIN(a2));
-//     glTexCoord2f(.5 - 1.0 / 2.6, .7 / 4.0);
-//     glVertex3f(-1.0, 0.7, z);
-
-//     glNormal3f(0, COS(a1), SIN(a1));
-//     glTexCoord2f(.5, 0.0);
-//     glVertex3f(0.0, 0.0, 2 * z);
-
-//     glEnd();
-
-//     a1 += 180;
-//     a2 += 180;
-//     a3 += 180;
-//     a4 += 180;
-
-//     glTranslated(0, 0, -.005);
-//     // glEnable(GL_POLYGON_OFFSET_FILL);//not working??
-//     // glPolygonOffset(2.0f, 2.0f);
-
-//     glBegin(GL_POLYGON);
-//     glNormal3f(0, COS(a1), SIN(a1));
-//     glTexCoord2f(0.5, 0);
-//     glVertex3f(0.0, 0.0, 2 * z);
-
-//     glNormal3f(0, COS(a2), SIN(a2));
-//     glTexCoord2f(.5 + 1.0 / 2.6, .7 / 4.0);
-//     glVertex3f(1.0, 0.7, z);
-
-//     glNormal3f(0, 0, -1);
-//     glTexCoord2f(.5 + 1.3 / 2.6, 1.8 / 4.0);
-//     glVertex3f(1.3, 1.8, 0);
-
-//     glNormal3f(0, COS(a3), SIN(a3));
-//     glTexCoord2f(.5 + 1.0 / 2.6, 2.8 / 4.0);
-//     glVertex3f(1.0, 2.8, z);
-
-//     glNormal3f(0, COS(a4), SIN(a4));
-//     glTexCoord2f(.5, 4.0 / 4.0);
-//     glVertex3f(0.0, 4.0, 2 * z);
-
-//     glNormal3f(0, COS(a3), SIN(a3));
-//     glTexCoord2f(.5 - 1.0 / 2.6, 2.8 / 4.0);
-//     glVertex3f(-1.0, 2.8, z);
-
-//     glNormal3f(0, 0, -1);
-//     glTexCoord2f(.5 - 1.3 / 2.6, 1.8 / 4.0);
-//     glVertex3f(-1.3, 1.8, 0);
-
-//     glNormal3f(0, COS(a2), SIN(a2));
-//     glTexCoord2f(.5 - 1.0 / 2.6, .7 / 4.0);
-//     glVertex3f(-1.0, 0.7, z);
-
-//     glNormal3f(0, COS(a1), SIN(a1));
-//     glTexCoord2f(.5, 0.0);
-//     glVertex3f(0.0, 0.0, 2 * z);
-
-//     glEnd();
-//     glDisable(GL_POLYGON_OFFSET_FILL);
-
-//     glPopMatrix();
-// }
+    //soil
+    glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, texture[pl.soil]);
+    glTranslated(pl.so.t[0], pl.so.t[1], pl.so.t[2]);
+    glRotated(pl.so.r[0], pl.so.r[1], pl.so.r[2], pl.so.r[3]);
+    glScaled(pl.so.s[0], pl.so.s[1], pl.so.s[2]);
+    unitcone(stdmat);
+    glPopMatrix();
+}
 
 void potrait(void)
 {

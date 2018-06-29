@@ -66,7 +66,7 @@ extern unsigned int texture[NUMBER_OF_TEXTURE]; //  Texture names
 extern float rep;
 
 room_dim_t room = {.75 * DIM, .75 * DIM, .5 * DIM};
-
+// material_t stdmat;
 void Print(const char *format, ...);
 
 /*
@@ -74,6 +74,7 @@ void Print(const char *format, ...);
  */
 void display()
 {
+
     //  Clear the image, depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //enable Z buffering
@@ -81,6 +82,7 @@ void display()
     //  Reset previous transforms
     glLoadIdentity();
 
+    // stdmat = {shiny, WHITE, BLACK};
     if (mode == 0) //orthogonal
     {
         glRotatef(ph, 1, 0, 0);
@@ -167,7 +169,7 @@ void display()
         glPushMatrix();
         glTranslated(-3, 0, -4);
         glScaled(.5, .5, .5);
-        leaf();
+        // leaf();
         glPopMatrix();
 
         /**********Plant Pot************/
@@ -442,22 +444,49 @@ void display()
 
     if (obj == 5) //potted plant
     {
+
+        leaf_t l[10] =
+            {
+                {15, 1.2, {80, 1, 0, 0}, {{0, 0, 0}, {0, 0, 1, 0}, {7, 7, 7}}},
+                {15, 1.2, {60, 1, 0, 0}, {{0, 1, 0}, {90, 0, 1, 0}, {7, 7, 7}}},
+                {15, 1.2, {60, 1, 0, 0}, {{0, 3, 0}, {180, 0, 1, 0}, {6, 6, 6}}},
+                {15, 1.2, {60, 1, 0, 0}, {{0, 6, 0}, {300, 0, 1, 0}, {6, 6, 6}}},
+
+                {10, 1.2, {50, 1, 0, 0}, {{0, 8, 0}, {-10, 0, 1, 0}, {5, 5, 5}}},
+                {10, 1.2, {40, 1, 0, 0}, {{0, 13, 0}, {70, 0, 1, 0}, {4, 4, 4}}},
+                {10, 1.2, {30, 1, 0, 0}, {{0, 16, 0}, {160, 0, 1, 0}, {4, 4, 4}}},
+                {10, 1.2, {30, 1, 0, 0}, {{0, 19, 0}, {270, 0, 1, 0}, {3, 3, 3}}},
+
+                {8, 1.5, {20, 1, 0, 0}, {{0, 40, 0}, {100, 0, 1, 0}, {.5, .5, .5}}},
+                {8, 1.5, {20, 1, 0, 0}, {{0, 40, 0}, {280, 0, 1, 0}, {.5, .5, .5}}},
+
+            };
+
+        plant_t pl =
+            {
+                3, 18, 9, 19, 10, l, {4, 0, 0, 0, 1, 1, .5, 0, 0, WHITE, WHITE, BLACK, {shiny, WHITE, BLACK}}, {{0, 10, 0}, {0, 0, 0, 0}, {.6, 10, .6}}, {{0, 0, 0}, {180, 1, 0, 0}, {15, 30, 15}}, {{0, 0, 0}, {0, 0, 0, 0}, {15, .5, 15}}};
+
+        Plant(pl);
+    }
+
+    if (obj == 6) //Table lamp
+    {
+        material_t stdmat = {shiny, WHITE, BLACK};
+
         glPushMatrix();
-        glScaled(10, 10, 10);
-        leaf();
+
+        unitcylinder(stdmat);
+
         glPopMatrix();
     }
 
-    if (obj == 6) //text
+    if (obj == 7) //potrait //text
     {
 
         glPushMatrix();
         logo();
         glPopMatrix();
-    }
 
-    if (obj == 7) //potrait
-    {
         potrait();
     }
     glDisable(GL_TEXTURE_2D);
