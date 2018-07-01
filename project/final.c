@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
       //  Request 500 x 500 pixel window
       glutInitWindowSize(1024, 1024);
       //  Create the window
-      glutCreateWindow("Ravi Prakash Dubey hw3");
+      glutCreateWindow("Ravi Prakash Dubey Final");
       //  Tell GLUT to call "display" when the scene should be drawn
       glutDisplayFunc(display);
       //  Tell GLUT to call "reshape" when the window is resized
@@ -84,6 +84,7 @@ int main(int argc, char *argv[])
       texture[17] = LoadTexBMP("./texture/water.bmp");
       texture[18] = LoadTexBMP("./texture/stem.bmp");
       texture[19] = LoadTexBMP("./texture/soil1.bmp");
+      texture[20] = LoadTexBMP("./texture/brick.bmp");
 
       //  Pass control to GLUT so it can interact with the user
       glutMainLoop();

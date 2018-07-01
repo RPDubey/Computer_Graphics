@@ -19,61 +19,50 @@ extern float shiny;                             // Shininess (value)
 extern unsigned int texture[NUMBER_OF_TEXTURE]; //  Texture names
 extern float rep;
 extern double dim;
-
-void table(table_t specs)
+extern int trans;
+void Chair(chair_t chair)
 {
-    for (int i = 0; i < 9; i++)
+
+    if (trans == 0)
     {
+        material_t stdmat = {shiny, WHITE, BLACK};
+
+        for (int i = 0; i < 7; i++)
+        {
+            glBindTexture(GL_TEXTURE_2D, texture[16]);
+            if (i == 0)
+            {
+
+                glPushMatrix();
+                glTranslated(chair.cur.t[0], chair.cur.t[1], chair.cur.t[2]);
+                glRotated(chair.cur.r[0], chair.cur.r[1], chair.cur.r[2], chair.cur.r[3]);
+                glScaled(chair.cur.s[0], chair.cur.s[1], chair.cur.s[2]);
+                Curve(chair.curv);
+                glPopMatrix();
+            }
+            if (i < 4)
+            {
+                glPushMatrix();
+                glTranslated(chair.cube[i].t[0], chair.cube[i].t[1], chair.cube[i].t[2]);
+                glRotated(chair.cube[i].r[0], chair.cube[i].r[1], chair.cube[i].r[2], chair.cube[i].r[3]);
+                glScaled(chair.cube[i].s[0], chair.cube[i].s[1], chair.cube[i].s[2]);
+                unitcube(stdmat);
+                glPopMatrix();
+            }
+            if (i > 2)
+                glBindTexture(GL_TEXTURE_2D, texture[4]);
+
+            glPushMatrix();
+            glTranslated(chair.cyl[i].t[0], chair.cyl[i].t[1], chair.cyl[i].t[2]);
+            glRotated(chair.cyl[i].r[0], chair.cyl[i].r[1], chair.cyl[i].r[2], chair.cyl[i].r[3]);
+            glScaled(chair.cyl[i].s[0], chair.cyl[i].s[1], chair.cyl[i].s[2]);
+            unitcylinder(stdmat);
+            glPopMatrix();
+        }
     }
 }
 
-void chair(chair_t chair)
-{
-    material_t stdmat = {shiny, WHITE, BLACK};
-
-    for (int i = 0; i < 7; i++)
-    {
-        glBindTexture(GL_TEXTURE_2D, texture[16]);
-        if (i == 0)
-        {
-
-            glPushMatrix();
-            glTranslated(chair.cur.t[0], chair.cur.t[1], chair.cur.t[2]);
-            glRotated(chair.cur.r[0], chair.cur.r[1], chair.cur.r[2], chair.cur.r[3]);
-            glScaled(chair.cur.s[0], chair.cur.s[1], chair.cur.s[2]);
-            Curve(chair.curv);
-            glPopMatrix();
-        }
-        if (i < 4)
-        {
-            glPushMatrix();
-            glTranslated(chair.cube[i].t[0], chair.cube[i].t[1], chair.cube[i].t[2]);
-            glRotated(chair.cube[i].r[0], chair.cube[i].r[1], chair.cube[i].r[2], chair.cube[i].r[3]);
-            glScaled(chair.cube[i].s[0], chair.cube[i].s[1], chair.cube[i].s[2]);
-            unitcube(stdmat);
-            glPopMatrix();
-        }
-        if (i > 2)
-            glBindTexture(GL_TEXTURE_2D, texture[4]);
-
-        glPushMatrix();
-        glTranslated(chair.cyl[i].t[0], chair.cyl[i].t[1], chair.cyl[i].t[2]);
-        glRotated(chair.cyl[i].r[0], chair.cyl[i].r[1], chair.cyl[i].r[2], chair.cyl[i].r[3]);
-        glScaled(chair.cyl[i].s[0], chair.cyl[i].s[1], chair.cyl[i].s[2]);
-        unitcylinder(stdmat);
-        glPopMatrix();
-    }
-}
-
-void lamp(lamp_t specs)
-{
-    for (int i = 0; i < 2; i++)
-        cylinder(specs.lamp_cyl_desc[i]);
-    for (int i = 0; i < 2; i++)
-        sphere(specs.lamp_sph_desc[i]);
-}
-
-void letterBlock(int element)
+void LetterBlock(int element)
 {
 
     double ratio = .6;
@@ -253,7 +242,7 @@ void letterBlock(int element)
     glPopMatrix();
 }
 
-void logo(void)
+void Logo(void)
 {
     glBindTexture(GL_TEXTURE_2D, texture[2]);
 
@@ -262,33 +251,33 @@ void logo(void)
     glPushMatrix();
     glScaled(.5 * 4, .25, .5);
     glTranslated(1, 0, 0);
-    letterBlock((int)0);
+    LetterBlock((int)0);
     glPopMatrix();
 
     glPushMatrix();
     glTranslated(0, .5, 0);
     glScaled(1, .5, 1);
-    letterBlock((int)1);
+    LetterBlock((int)1);
     glPopMatrix();
 
     glPushMatrix();
     glScaled(.5 * 4, .25, .5);
     glTranslated(1, 0, 10);
-    letterBlock((int)0);
+    LetterBlock((int)0);
     glPopMatrix();
 
     glPushMatrix();
     glTranslated(-.5, 0, 2.5);
     glRotated(90, 0, 1, 0);
     glScaled(.5 * 4, .25, .5);
-    letterBlock((int)0);
+    LetterBlock((int)0);
     glPopMatrix();
 
     glPushMatrix();
     glTranslated(-.5, .5, 4.5);
     glRotated(90, 0, 1, 0);
     glScaled(1, .5, 1);
-    letterBlock((int)1);
+    LetterBlock((int)1);
     glPopMatrix();
 
     glPopMatrix();
@@ -300,34 +289,34 @@ void logo(void)
     glTranslated(-.5, 0, 2);
     glRotated(90, 0, 1, 0);
     glScaled(.5 * 5, .25, .5);
-    letterBlock((int)0);
+    LetterBlock((int)0);
     glPopMatrix();
 
     glPushMatrix();
     glTranslated(-.5, .5, 4.5);
     glRotated(90, 0, 1, 0);
     glScaled(1, .5, 1);
-    letterBlock((int)1);
+    LetterBlock((int)1);
     glPopMatrix();
 
     glPushMatrix();
     glScaled(.5 * 4, .25, .5);
     glTranslated(1, 0, 10);
-    letterBlock((int)0);
+    LetterBlock((int)0);
     glPopMatrix();
 
     glPushMatrix();
     glTranslated(4, .5, 5);
     glRotated(180, 0, 1, 0);
     glScaled(1, .5, 1);
-    letterBlock((int)1);
+    LetterBlock((int)1);
     glPopMatrix();
 
     glPushMatrix();
     glTranslated(4.5, 0, 2);
     glRotated(90, 0, 1, 0);
     glScaled(.5 * 5, .25, .5);
-    letterBlock((int)0);
+    LetterBlock((int)0);
     glPopMatrix();
 
     glPopMatrix();
@@ -355,12 +344,9 @@ void unitNorm(double vp[3], double vm[3], double vn[3], double *n1)
 }
 
 #define STEP (double)2
-void leaf(double r, double depth)
+void Leaf(double r, double depth)
 {
     glPushMatrix();
-
-    // double r = 10.0;
-    // double depth = 1.2;
 
     float spec[4] = {1, 1, 1, 1};
     float emis[4] = {0, 0, 0, 1};
@@ -373,7 +359,6 @@ void leaf(double r, double depth)
     double ang[5];
     double z[5];
     double normr[5][3];
-    // double norml[5][3];
 
     double a; //angle from centre of leaf to edge, along its breadth
     double val;
@@ -440,7 +425,8 @@ void leaf(double r, double depth)
 
 void Plant(plant_t pl)
 {
-
+    glPushMatrix();
+    glTranslated(0, 15, 0);
     glBindTexture(GL_TEXTURE_2D, texture[pl.leaf]);
     for (int i = 0; i < pl.num; i++)
     {
@@ -450,7 +436,7 @@ void Plant(plant_t pl)
         glRotated((pl.l + i)->tr.r[0], (pl.l + i)->tr.r[1], (pl.l + i)->tr.r[2], (pl.l + i)->tr.r[3]);
         glRotated((pl.l + i)->ti[0], (pl.l + i)->ti[1], (pl.l + i)->ti[2], (pl.l + i)->ti[3]);
         glScaled((pl.l + i)->tr.s[0], (pl.l + i)->tr.s[1], (pl.l + i)->tr.s[2]);
-        leaf((pl.l + i)->r, (pl.l + i)->d);
+        Leaf((pl.l + i)->r, (pl.l + i)->d);
         glPopMatrix();
     }
 
@@ -481,46 +467,50 @@ void Plant(plant_t pl)
     glScaled(pl.so.s[0], pl.so.s[1], pl.so.s[2]);
     unitcone(stdmat);
     glPopMatrix();
+
+    glPopMatrix();
 }
 
-void potrait(void)
+void Potrait(int num, int tex)
 {
-    glBindTexture(GL_TEXTURE_2D, texture[0]);
+    glBindTexture(GL_TEXTURE_2D, texture[tex]);
 
-    glPushMatrix();
-    float spec[4] = {1, 1, 0, 1};
+    float spec[4] = {1, 1, 1, 1};
     float emis[4] = {0, 0, 0, 1};
 
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emis);
-    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shiny);
+    setMatPr(spec, emis, shiny);
 
+    // int num = 100;          //number of quads
+    double mul = 2.0 / num; /// num;
+    double mul1 = 1.0 / num;
     glPushMatrix();
-    glScaled(2, 2, 1);
-    glBegin(GL_QUADS);
+    // glTranslated(-50, -50, 0);
+    glScaled(10, 10, 1);
+    glColor3f(1.0, 1.0, 1.0);
     glNormal3f(0, 0, 1);
-    glTexCoord2f(0.0, 0.0);
-    glVertex3f(-1, -1, 0);
-    glTexCoord2f(1, 0.0);
-    glVertex3f(+1, -1, 0);
-    glTexCoord2f(1, 1);
-    glVertex3f(+1, +1, 0);
-    glTexCoord2f(0.0, 1);
-    glVertex3f(-1, +1, 0);
+
+    glBegin(GL_QUADS);
+    for (int i = 0; i < num; i++)
+        for (int j = 0; j < num; j++)
+        {
+            glTexCoord2d(mul1 * (i + 0), mul1 * (j + 0));
+            glVertex2d(5 * mul * (i + 0) - 5, 5 * mul * (j + 0) - 5);
+            glTexCoord2d(mul1 * (i + 1), mul1 * (j + 0));
+            glVertex2d(5 * mul * (i + 1) - 5, 5 * mul * (j + 0) - 5);
+            glTexCoord2d(mul1 * (i + 1), mul1 * (j + 1));
+            glVertex2d(5 * mul * (i + 1) - 5, 5 * mul * (j + 1) - 5);
+            glTexCoord2d(mul1 * (i + 0), mul1 * (j + 1));
+            glVertex2d(5 * mul * (i + 0) - 5, 5 * mul * (j + 1) - 5);
+        }
     glEnd();
     glPopMatrix();
 
     glBindTexture(GL_TEXTURE_2D, texture[1]);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1, 1);
     glPushMatrix();
-    glTranslatef(0, 0, -.1);
-    glScaled(2, 2, .1);
+    glTranslatef(0, 0, -.6);
+    glScaled(50, 50, .5);
     material_t stdmat = {shiny, WHITE, BLACK};
     unitcube(stdmat);
-    glPopMatrix();
-    glDisable(GL_POLYGON_OFFSET_FILL);
-
     glPopMatrix();
 }
 
@@ -555,6 +545,8 @@ void Quad(quadr_t prop)
     if (prop.offset)
         glDisable(GL_POLYGON_OFFSET_FILL);
     glEnd();
+    glPopMatrix();
+
     glPopMatrix();
 }
 
@@ -651,6 +643,136 @@ void Curve(curve_t prop)
         Quad(back);
     }
     glPopMatrix();
+}
+
+void Cupboard(cbd_t c)
+{
+    if (trans == 0)
+    {
+        glBindTexture(GL_TEXTURE_2D, texture[12]);
+
+        material_t stdmat = {shiny, WHITE, BLACK};
+        for (int i = 0; i < 6; i++)
+        {
+            glPushMatrix();
+            glTranslated(c.cbd[i].t[0], c.cbd[i].t[1], c.cbd[i].t[2]);
+            glRotated(c.cbd[i].r[0], c.cbd[i].r[1], c.cbd[i].r[2], c.cbd[i].r[3]);
+            glScaled(c.cbd[i].s[0], c.cbd[i].s[1], c.cbd[i].s[2]);
+            unitcube(stdmat);
+            glPopMatrix();
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            glPushMatrix();
+            glBindTexture(GL_TEXTURE_2D, texture[12 + i]);
+            Quad(c.cbd_plank[i]);
+            glPopMatrix();
+        }
+    }
+}
+
+void Table(table_t table)
+{
+    material_t stdmat = {shiny, WHITE, BLACK};
+
+    if (trans == 0)
+    {
+        //stand
+        glPushMatrix();
+        glBindTexture(GL_TEXTURE_2D, texture[12]);
+
+        Curve(table.stand);
+        unitcone(stdmat);
+        glPopMatrix();
+    }
+    if (trans == 1)
+    {
+        ENABLE_TRANSPARENCY;
+        //transparent
+        glPushMatrix();
+        glBindTexture(GL_TEXTURE_2D, texture[17]);
+        glTranslated(table.top.t[0], table.top.t[1], table.top.t[2]);
+        glRotated(table.top.r[0], table.top.r[1], table.top.r[2], table.top.r[3]);
+        glScaled(table.top.s[0], table.top.s[1], table.top.s[2]);
+        unitcylinder(stdmat);
+        glPopMatrix();
+        glDisable(GL_BLEND);
+        glDepthMask(1);
+    }
+}
+
+void Building(quadr_t *building)
+{
+    glPushMatrix();
+
+    if (trans == 0)
+    {
+        glBindTexture(GL_TEXTURE_2D, texture[8]);
+        Quad(*building);
+    }
+
+    if (trans == 1)
+    {
+        glPushMatrix();
+
+        ENABLE_TRANSPARENCY
+        glBindTexture(GL_TEXTURE_2D, texture[10]);
+        Quad(*(building + 1));
+        Quad(*(building + 2));
+        Quad(*(building + 3));
+        Quad(*(building + 4));
+        glBindTexture(GL_TEXTURE_2D, texture[11]);
+        Quad(*(building + 5));
+        glDisable(GL_BLEND);
+        glDepthMask(1);
+
+        glPopMatrix();
+    }
+    glPopMatrix();
+}
+
+void Lamp(lamp_t lamp)
+{
+    material_t stdmat = {shiny, WHITE, BLACK};
+
+    for (int i = 0; i < 5; i++)
+    {
+
+        if (i < 2)
+        {
+            glPushMatrix();
+            glBindTexture(GL_TEXTURE_2D, i == 0 ? texture[lamp.base] : texture[lamp.stem]);
+            glTranslated(lamp.tra[i].t[0], lamp.tra[i].t[1], lamp.tra[i].t[2]);
+            glRotated(lamp.tra[i].r[0], lamp.tra[i].r[1], lamp.tra[i].r[2], lamp.tra[i].r[3]);
+            glScaled(lamp.tra[i].s[0], lamp.tra[i].s[1], lamp.tra[i].s[2]);
+            unitcylinder(stdmat);
+            glPopMatrix();
+        }
+        if (i == 2)
+        {
+            glPushMatrix();
+            glBindTexture(GL_TEXTURE_2D, texture[lamp.stem]);
+            glTranslated(lamp.tra[2].t[0], lamp.tra[2].t[1], lamp.tra[2].t[2]);
+            glRotated(lamp.tra[2].r[0], lamp.tra[2].r[1], lamp.tra[2].r[2], lamp.tra[2].r[3]);
+            glScaled(lamp.tra[2].s[0], lamp.tra[2].s[1], lamp.tra[2].s[2]);
+            Curve(lamp.cur);
+            glPopMatrix();
+        }
+        if (i > 2)
+        {
+            glPushMatrix();
+            glBindTexture(GL_TEXTURE_2D, i == 3 ? texture[lamp.shade] : texture[lamp.bulb]);
+            glTranslated(lamp.tra[i].t[0], lamp.tra[i].t[1], lamp.tra[i].t[2]);
+            glRotated(lamp.tra[i].r[0], lamp.tra[i].r[1], lamp.tra[i].r[2], lamp.tra[i].r[3]);
+            glScaled(lamp.tra[i].s[0], lamp.tra[i].s[1], lamp.tra[i].s[2]);
+            if (i == 3)
+                sphere(lamp.sph);
+            else if (i == 4)
+                unitsphere(stdmat);
+            glPopMatrix();
+        }
+    }
 }
 
 // void CurveQuad(curve_quadr_t prop)

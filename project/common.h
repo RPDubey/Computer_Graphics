@@ -20,6 +20,9 @@
 #define DIM (100)
 #define NUMBER_OF_OBJET (7)
 #define NUMBER_OF_TEXTURE (30)
+#define LENGTH 0.75 * DIM
+#define BREATH 0.75 * DIM
+#define HEIGHT 0.5 * DIM
 
 #define ENABLE_TRANSPARENCY                \
     {                                      \

@@ -14,7 +14,7 @@
 #include "sphere.h"
 #include "cone.h"
 #include "objects.h"
-#include "project.h"
+#include "final.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,6 +53,8 @@ extern int light;
 extern int rot;
 extern int roty;
 int local = 0;
+int side = 0;
+
 double distance = 1.4 * DIM;
 
 extern int emission;  // Emission intensity (%)
@@ -61,14 +63,20 @@ extern int diffuse;   // Diffuse intensity (%)
 extern int specular;  // Specular intensity (%)
 extern int shininess; // Shininess (power of two)
 extern float shiny;   // Shininess (value)
-
+double at0 = 1;
+double at1 = 1;
+double at2 = 0;
 extern unsigned int texture[NUMBER_OF_TEXTURE]; //  Texture names
 extern float rep;
+extern float sco;
 
-room_dim_t room = {.75 * DIM, .75 * DIM, .5 * DIM};
+const room_dim_t room = {LENGTH, BREATH, HEIGHT};
+
+static float lb_pos[] = {-46, 32, -60, 1}; //night light position for spotlight
+
 // material_t stdmat;
 void Print(const char *format, ...);
-
+int trans = 0;
 /*
  *  Display the scene
  */
@@ -110,12 +118,11 @@ void display()
 
     if (light)
     {
-        //draw the ball representing light source
-
-        glColor3f(1, 1, 1);
         //position of the light source
         float pos[] = {distance * SIN(rot) * COS(roty), distance * SIN(roty), distance * COS(rot) * COS(roty), 1};
 
+        //draw the ball representing light source
+        glColor3f(1, 1, 1);
         material_t mat = {shiny, YELLOW, YELLOW};
         ball(pos[0], pos[1], pos[2], 2, YELLOW, mat);
 
@@ -125,12 +132,17 @@ void display()
         glEnable(GL_LIGHTING);
         //  Location of viewer for specular calculations
         glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, local);
+        //  Two sided mode
+        glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, side);
 
         //  glColor sets ambient and diffuse color materials
         //Ambient & diffuse material properties of front & back track the current color
         glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
         glEnable(GL_COLOR_MATERIAL); //apply color to the material described on color call
-
+        float yellow[] = {1.0, 1.0, 0, 1.0};
+        //  Set specular colors
+        glMaterialfv(GL_FRONT, GL_SPECULAR, yellow);
+        glMaterialf(GL_FRONT, GL_SHININESS, shiny);
         //  Enable light 0
         glEnable(GL_LIGHT0);
 
@@ -144,94 +156,167 @@ void display()
         glLightfv(GL_LIGHT0, GL_DIFFUSE, Diffuse);
         glLightfv(GL_LIGHT0, GL_SPECULAR, Specular);
         glLightfv(GL_LIGHT0, GL_POSITION, pos);
-    }
 
+        //  Set spotlight parameters
+        // glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, Direction);
+        // glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, sco);
+        // glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, Exp);
+
+        //  Set attenuation
+        glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, at0 / 100.0);
+        glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, at1 / 100.0);
+        glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, at2 / 100.0);
+    }
+    else if (!light)
+    {
+        ambient = 0;
+        diffuse = 100;
+        specular = 0;
+        local = 1;
+
+        //position of the light source
+        float pos[] = {distance * SIN(rot) * COS(roty), distance * SIN(roty), distance * COS(rot) * COS(roty), 1};
+
+        // float pos1[] = {-46, 32, -65, 1}; //{0, 0, distance / 4.0, 1};
+
+        // float pos[4] = {5, 10, 20, 1};
+        //draw the ball representing light source
+        glColor3f(1, 1, 1);
+        material_t mat = {shiny, YELLOW, YELLOW};
+        // ball(pos[0], pos[1], pos[2], 2, YELLOW, mat);
+
+        // ball(pos1[0], pos1[1], pos1[2], 1, YELLOW, mat);
+
+        //  OpenGL should normalize normal vectors
+        glEnable(GL_NORMALIZE);
+        //  Enable lighting
+        glEnable(GL_LIGHTING);
+        //  Location of viewer for specular calculations
+        glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, local);
+        //  Two sided mode
+        glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, side);
+
+        //  glColor sets ambient and diffuse color materials
+        //Ambient & diffuse material properties of front & back track the current color
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        glEnable(GL_COLOR_MATERIAL); //apply color to the material described on color call
+
+        //  Enable light 1
+        glEnable(GL_LIGHT0);
+
+        //  Translate intensity to color vectors
+        float Ambient[] = {0.01 * ambient, 0.01 * ambient, 0.01 * ambient, 1.0};
+        float Diffuse[] = {0.01 * diffuse, 0.01 * diffuse, 0.01 * diffuse, 1.0};
+        float Specular[] = {0.01 * specular, 0.01 * specular, 0.01 * specular, 1.0};
+        glColor3f(1, 1, 1); //color for light
+        //  Set ambient, diffuse, specular components and position of light 0
+        glLightfv(GL_LIGHT0, GL_AMBIENT, Ambient);
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, Diffuse);
+        glLightfv(GL_LIGHT0, GL_SPECULAR, Specular);
+        glLightfv(GL_LIGHT0, GL_POSITION, lb_pos);
+
+        // float sco = 180; //  Spot cutoff angle
+        float Exp = 1; //  Spot exponent
+        // float Direction[] = {pos[0], pos[1], pos[2], 0};
+        float Direction[] = {-COS(10), -SIN(10), 0, 0}; //{0, 0, -distance / 4.0, 0};
+
+        //        Set spotlight parameters
+        glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, Direction);
+        glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, sco);
+        glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, Exp);
+
+        //  Set attenuation
+        // glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, at0 / 100.0);
+        // glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, at1 / 100.0);
+        // glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, at2 / 100.0);
+    }
     /*********************Draw objects***********************/
 
-    //texture
+    //Enable texture
     glEnable(GL_TEXTURE_2D);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    // glDisable(GL_TEXTURE_2D);
 
     //draw the entire scene
     if (obj == 0)
     {
+        trans = 0;
+        // glPushMatrix();
 
         material_t stdmat = {shiny, WHITE, BLACK};
 
         glPushMatrix();
+        glTranslated(-65, 0, 0);
+        glRotated(90, 0, 1, 0);
+        glScaled(.7, 0.7, .7);
+        Cupboard(cupboard);
+        glPopMatrix();
 
-        /**********floor************/
-        glBindTexture(GL_TEXTURE_2D, texture[8]);
-        //Quad(dim, dim, WHITE);
-
-        /**********Model of Leaf************/
         glPushMatrix();
-        glTranslated(-3, 0, -4);
+        glTranslated(30, 4, -60);
         glScaled(.5, .5, .5);
-        // leaf();
+        Chair(chair_specs);
         glPopMatrix();
-
-        /**********Plant Pot************/
-        glPushMatrix();
-        glTranslated(3, 1, -4);
-        glRotated(180, 1, 0, 0);
-        glScaled(1, 2, 1);
-        glBindTexture(GL_TEXTURE_2D, texture[9]);
-        cone((cone_t){4, 0, 0, 0, 1, 1, .5, 0, 0, WHITE, WHITE, BLACK, stdmat});
-        glPopMatrix();
-
-        /**********Model of earth resting on cone************/
-        glTranslated(-3, 0, 4);
-        glBindTexture(GL_TEXTURE_2D, texture[4]);
-        unitcone(stdmat);
 
         glPushMatrix();
-        glTranslated(0, 2, 0);
-        glRotated(60, 0, 1, 0);
-        glBindTexture(GL_TEXTURE_2D, texture[7]);
-        material_t mat = {shiny, YELLOW, {0.0, 0.0, 0.01 * emission, 1.0}};
-        unitsphere(mat);
-        glPopMatrix();
-        glPopMatrix();
-
-        /**********Mona Lisa on a Crate************/
-        glPushMatrix();
-
-        glTranslated(3, 0, 4);
+        glTranslated(60, 4, -30);
+        glRotated(-90, 0, 1, 0);
         glScaled(.5, .5, .5);
-        glPushMatrix();
-        glBindTexture(GL_TEXTURE_2D, texture[6]);
-        glTranslated(0, 1, 0);
-        glScaled(2, 1, 1);
-        unitcube(stdmat);
+        Chair(chair_specs);
         glPopMatrix();
 
         glPushMatrix();
-        glTranslated(0, 4, 0);
-        potrait();
-        glPopMatrix();
-
-        glPopMatrix();
-
-        /**********CU Logo on Cylinder************/
-        glPushMatrix();
-        glScaled(1.25, 1.25, 1.25);
-        glTranslated(0, 1, 0);
-        glPushMatrix();
-        glRotated(140, 0, 1, 0);
-        glBindTexture(GL_TEXTURE_2D, texture[5]);
-        unitcylinder(stdmat);
+        glTranslated(65, 0, 0);
+        glRotated(0, 0, 0, 0);
+        glScaled(.5, 0.5, 0.5);
+        glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
+        Plant(pl);
+        glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
         glPopMatrix();
 
         glPushMatrix();
-        glTranslated(-1, 2.8, 0);
-        glRotated(90, 1, 0, 0);
-        glScaled(.25, .25, .25);
-        logo();
+        glTranslated(0, 0, -65);
+        glRotated(0, 0, 0, 0);
+        glScaled(.5, 0.6, 0.5);
+        glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
+        Plant(pl);
+        glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
         glPopMatrix();
 
+        glPushMatrix();
+        glTranslated(-30, 0, -65);
+        glRotated(-90, 0, 1, 0);
+        glScaled(.6, 0.6, 0.6);
+        Lamp(lamp);
         glPopMatrix();
+
+        glPushMatrix();
+        glTranslated(-73, 30, -60);
+        glRotated(90, 0, 1, 0);
+        glScaled(.25, .25, 1);
+        Potrait(100, 0);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslated(-46, 32, -65);
+        glRotated(90, 0, 0, 0);
+        unitsphere(stdmat);
+        glPopMatrix();
+
+        for (trans = 0; trans < 2; trans++)
+        {
+            glPushMatrix();
+            glTranslated(30, 0, -40);
+            glRotated(180, 0, 1, 0);
+            glScaled(1, 1, 1);
+            Table(table);
+            glPopMatrix();
+
+            glPushMatrix();
+            Building(building);
+            glPopMatrix();
+        }
+
+        // glPopMatrix();
     }
 
     //draw the individual elements
@@ -239,257 +324,53 @@ void display()
     //building
     if (obj == 1)
     {
-
-        quadr_t building[6] =
-            {
-                //floor
-                {
-                    {{-room.b, 0, room.l},
-                     {room.b, 0, room.l},
-                     {room.b, 0, -room.l},
-                     {-room.b, 0, -room.l}},
-                    WHITE,
-                    16,
-                    1,
-                    {0, 1, 0}},
-                //left Wall
-                {
-                    {{-room.b, 0, -room.l},
-                     {-room.b, 0, room.l},
-                     {-room.b, room.h, room.l},
-                     {-room.b, room.h, -room.l}},
-                    (color_t){1, 1, 1, .4},
-                    4,
-                    1,
-                    {-1, 0, 0}},
-                //right wall
-                {
-                    {{room.b, 0, room.l},
-                     {room.b, 0, -room.l},
-                     {room.b, room.h, -room.l},
-                     {room.b, room.h, room.l}},
-                    (color_t){1, 1, 1, .4},
-                    4,
-                    1,
-                    {1, 0, 0}},
-                //back wall
-                {{{room.b, 0, -room.l},
-                  {-room.b, 0, -room.l},
-                  {-room.b, room.h, -room.l},
-                  {room.b, room.h, -room.l}},
-                 (color_t){1, 1, 1, .4},
-                 4,
-                 1,
-                 {0, 0, -1}},
-                //front wall
-                {
-                    {{room.b, 0, room.l},
-                     {-room.b, 0, room.l},
-                     {-room.b, room.h, room.l},
-                     {room.b, room.h, room.l}},
-                    (color_t){1, 1, 1, .4},
-                    4,
-                    1,
-                    {0, 0, 1}},
-                //roof
-                {
-                    {{-room.b, room.h, room.l},
-                     {room.b, room.h, room.l},
-                     {room.b, room.h, -room.l},
-                     {-room.b, room.h, -room.l}},
-                    (color_t){1, 1, 1, .2},
-                    8,
-                    1,
-                    {0, 1, 0}}};
-
-        glBindTexture(GL_TEXTURE_2D, texture[8]);
-        Quad(building[0]);
-        ENABLE_TRANSPARENCY
-        glBindTexture(GL_TEXTURE_2D, texture[10]);
-        Quad(building[1]);
-        Quad(building[2]);
-        Quad(building[3]);
-        Quad(building[4]);
-        glBindTexture(GL_TEXTURE_2D, texture[11]);
-        Quad(building[5]);
-        glDisable(GL_BLEND);
-        glDepthMask(1);
+        trans = 0;
+        Building(building);
+        trans = 1;
+        Building(building);
     }
 
     if (obj == 2) //cupboard
     {
-
-        transform_t cbd[6] =
-            {
-                {{0, 1, 0}, {90, 0, 0, 0}, {20, 1, 10}},
-                {{-19, 32, 0}, {90, 0, 0, 1}, {30, 1, 10}},
-                {{19, 32, 0}, {90, 0, 0, 1}, {30, 1, 10}},
-                {{0, 63, 0}, {90, 0, 0, 0}, {20, 1, 10}},
-                {{0, 21, 0}, {90, 0, 0, 0}, {20, 1, 10}},
-                {{0, 42, 0}, {90, 0, 0, 0}, {20, 1, 10}},
-            };
-        glBindTexture(GL_TEXTURE_2D, texture[12]);
-
-        material_t stdmat = {shiny, WHITE, BLACK};
-        for (int i = 0; i < 6; i++)
-        {
-            glPushMatrix();
-            glTranslated(cbd[i].t[0], cbd[i].t[1], cbd[i].t[2]);
-            glRotated(cbd[i].r[0], cbd[i].r[1], cbd[i].r[2], cbd[i].r[3]);
-            glScaled(cbd[i].s[0], cbd[i].s[1], cbd[i].s[2]);
-            unitcube(stdmat);
-            glPopMatrix();
-        }
-
-        glPushMatrix();
-        quadr_t back[4] = {
-            {{{-20, 0, -10},
-              {20, 0, -10},
-              {20, 63, -10},
-              {-20, 63, -10}},
-             WHITE,
-             1,
-             0,
-             {0, 0, 1}},
-            {{{-20, 0, 7},
-              {20, 0, 7},
-              {20, 17, 7},
-              {-20, 17, 7}},
-             WHITE,
-             1,
-             0,
-             {0, 0, 1}},
-            {{{-20, 22, 7},
-              {20, 22, 7},
-              {20, 38, 7},
-              {-20, 38, 7}},
-             WHITE,
-             1,
-             0,
-             {0, 0, 1}},
-            {{{-20, 43, 7},
-              {20, 43, 7},
-              {20, 58, 7},
-              {-20, 58, 7}},
-             WHITE,
-             1,
-             0,
-             {0, 0, 1}}};
-
-        for (int i = 0; i < 4; i++)
-        {
-            glBindTexture(GL_TEXTURE_2D, texture[12 + i]);
-            Quad(back[i]);
-        }
-
-        glPopMatrix();
+        trans = 0;
+        Cupboard(cupboard);
     }
 
     if (obj == 3) // chair
     {
-
-        //chair
-        chair_t specs = {
-            //cylinder
-            {
-                {{-14, 12, 0}, {90, 1, 0, 0}, {3, 8, 2}},
-                {{14, 12, 0}, {90, 1, 0, 0}, {3, 8, 2}},
-                {{0, 30, -15}, {90, 0, 0, 1}, {3, 16, 3}},
-                {{-12, -2, 6}, {0, 0, 0, 0}, {1, 2, 1}},
-                {{12, -2, 6}, {0, 0, 0, 0}, {1, 2, 1}},
-                {{-12, -2, -6}, {0, 0, 0, 0}, {1, 2, 1}},
-                {{12, -2, -6}, {0, 0, 0, 0}, {1, 2, 1}},
-
-            },
-            //cube
-            {
-                {{0, 2, 0}, {90, 0, 0, 0}, {12, 2, 8}},
-                {{14, 6, 0}, {90, 0, 0, 1}, {6, 2, 8}},
-                {{-14, 6, 0}, {90, 0, 0, 1}, {6, 2, 8}},
-                {{0, 10, -10}, {90, 1, 0, 0}, {16, 2, 10}}
-
-            },
-            {{0, 20, -10}, {0, 0, 0, 0}, {1, 1, 1}},
-            {16, 16, 12, 45, WHITE, 1}
-
-        };
-        chair(specs);
+        trans = 0;
+        Chair(chair_specs);
     }
 
     if (obj == 4) //table
     {
-
-        //stand
-        glPushMatrix();
-        glBindTexture(GL_TEXTURE_2D, texture[12]);
-        material_t stdmat = {shiny, WHITE, BLACK};
-
-        curve_t stand = {4, 10, 8, 180, {1, 1, 1, .2}, 1};
-        Curve(stand);
-        unitcone(stdmat);
-        glPopMatrix();
-
-        ENABLE_TRANSPARENCY;
-        //transparent
-        glPushMatrix();
-        glBindTexture(GL_TEXTURE_2D, texture[17]);
-        glTranslated(0, 10.5, -10);
-        glRotated(180, 0, 0, 0);
-        glScaled(20, 1, 20);
-        unitcylinder(stdmat);
-        glPopMatrix();
-        glDisable(GL_BLEND);
-        glDepthMask(1);
+        trans = 0;
+        Table(table);
+        trans = 1;
+        Table(table);
     }
 
     if (obj == 5) //potted plant
     {
-
-        leaf_t l[10] =
-            {
-                {15, 1.2, {80, 1, 0, 0}, {{0, 0, 0}, {0, 0, 1, 0}, {7, 7, 7}}},
-                {15, 1.2, {60, 1, 0, 0}, {{0, 1, 0}, {90, 0, 1, 0}, {7, 7, 7}}},
-                {15, 1.2, {60, 1, 0, 0}, {{0, 3, 0}, {180, 0, 1, 0}, {6, 6, 6}}},
-                {15, 1.2, {60, 1, 0, 0}, {{0, 6, 0}, {300, 0, 1, 0}, {6, 6, 6}}},
-
-                {10, 1.2, {50, 1, 0, 0}, {{0, 8, 0}, {-10, 0, 1, 0}, {5, 5, 5}}},
-                {10, 1.2, {40, 1, 0, 0}, {{0, 13, 0}, {70, 0, 1, 0}, {4, 4, 4}}},
-                {10, 1.2, {30, 1, 0, 0}, {{0, 16, 0}, {160, 0, 1, 0}, {4, 4, 4}}},
-                {10, 1.2, {30, 1, 0, 0}, {{0, 19, 0}, {270, 0, 1, 0}, {3, 3, 3}}},
-
-                {8, 1.5, {20, 1, 0, 0}, {{0, 40, 0}, {100, 0, 1, 0}, {.5, .5, .5}}},
-                {8, 1.5, {20, 1, 0, 0}, {{0, 40, 0}, {280, 0, 1, 0}, {.5, .5, .5}}},
-
-            };
-
-        plant_t pl =
-            {
-                3, 18, 9, 19, 10, l, {4, 0, 0, 0, 1, 1, .5, 0, 0, WHITE, WHITE, BLACK, {shiny, WHITE, BLACK}}, {{0, 10, 0}, {0, 0, 0, 0}, {.6, 10, .6}}, {{0, 0, 0}, {180, 1, 0, 0}, {15, 30, 15}}, {{0, 0, 0}, {0, 0, 0, 0}, {15, .5, 15}}};
-
+        trans = 0;
+        glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
         Plant(pl);
+        glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
     }
 
     if (obj == 6) //Table lamp
     {
-        material_t stdmat = {shiny, WHITE, BLACK};
 
-        glPushMatrix();
-
-        unitcylinder(stdmat);
-
-        glPopMatrix();
+        Lamp(lamp);
     }
 
     if (obj == 7) //potrait //text
     {
-
-        glPushMatrix();
-        logo();
-        glPopMatrix();
-
-        potrait();
+        Potrait(100, 0);
     }
+
     glDisable(GL_TEXTURE_2D);
+    glDisable(GL_LIGHTING);
 
     //particle system
     //night mode
@@ -528,8 +409,10 @@ void display()
     if (mode == 2)
         Print(", Eye Position (%.2f,%.2f,%.2f)", Ex1, Ey1, Ez1);
 
-    if (light)
+    if (1)
     {
+        glWindowPos2i(5, 65);
+        Print("sco=%.2f", sco);
         glWindowPos2i(5, 45);
         Print("LocalViewer=%d Distance=%.2f Azimuth=%d, Elevation=%d rep =%.2f", local, distance, rot, roty, rep);
         glWindowPos2i(5, 25);

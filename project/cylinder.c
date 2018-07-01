@@ -13,7 +13,7 @@
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glut.h>
 
-#define RSTEP 1.0
+#define RSTEP 5.0
 //#define HSTEP 0.05
 extern float shiny;
 extern float rep;
@@ -68,7 +68,7 @@ void cylinder(const cylinder_t cyl)
     glNormal3f(0, 1, 0);
     glTexCoord2f(0.5, 0.5);
     glVertex3f(0, 1, 0);
-    for (int j = 0; j <= 360; j += 3)
+    for (int j = 0; j <= 360; j += RSTEP)
     {
         glTexCoord2f(rep / 2 * COS(j) + 0.5, rep / 2 * SIN(j) + 0.5);
         glVertex3f(COS(j), 1, SIN(j));
@@ -81,7 +81,7 @@ void cylinder(const cylinder_t cyl)
     glNormal3f(0, -1, 0);
     glTexCoord2f(0.5, 0.5);
     glVertex3f(0, -1, 0);
-    for (int j = 0; j <= 360; j += 5)
+    for (int j = 0; j <= 360; j += RSTEP)
     {
         glTexCoord2f(rep / 2 * COS(j) + 0.5, rep / 2 * SIN(j) + 0.5);
         glVertex3f(COS(j), -1, SIN(j));

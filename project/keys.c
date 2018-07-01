@@ -25,7 +25,7 @@ double dim = DIM; // Dimensions of orthogonal box
 double asp = 1;   //aspect ration
 int fov = FOV;    //  Field of view (for perspective)
 int mode = 1;     //orthogonal,perspective,first person
-int obj = 6;      //object to be displayed
+int obj = 0;      //object to be displayed
 
 //light related
 int light = 1; //light source on/off
@@ -58,6 +58,8 @@ int zratio = 4;
 extern double a;
 extern double r;
 extern room_dim_t room;
+float sco = 20;
+
 /*
  *  GLUT calls this routine when the window is resized
  */
@@ -65,7 +67,7 @@ void idle()
 {
     //  Elapsed time in seconds
     double t = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
-    rot = fmod(90 * t, 360.0);
+    rot = fmod(45 * t, 360.0);
     //  Tell GLUT it is necessary to redisplay the scene
     glutPostRedisplay();
 }
@@ -120,9 +122,14 @@ void key(unsigned char ch, int x, int y)
         rot = 90;
         roty = 10;
     }
+    else if (ch == '{' && sco > 5)
+        sco = sco == 180 ? 90 : sco - 5;
+    else if (ch == '}' && sco < 180)
+        sco = sco < 90 ? sco + 5 : 180;
+
     else if (ch == 'o')
     {
-        distance -= .25;
+        distance -= 1;
         distance = distance < 0 ? 0 : distance;
     }
 

@@ -23,12 +23,6 @@ typedef struct
 
 typedef struct
 {
-    // cube_t table_desc[9];
-
-} table_t;
-
-typedef struct
-{
     double r, d;
     float ti[4];    //tilt
     transform_t tr; //transform
@@ -45,20 +39,35 @@ typedef struct
 
 typedef struct
 {
-    cylinder_t lamp_cyl_desc[2];
-    sphere_t lamp_sph_desc[2];
+    transform_t cbd[6];
+    quadr_t cbd_plank[4];
+} cbd_t;
 
+typedef struct
+{
+    curve_t stand;
+    transform_t top;
+} table_t;
+
+typedef struct
+{
+    transform_t tra[5];
+    curve_t cur;
+    sphere_t sph;
+    int base, stem, shade, bulb;
 } lamp_t;
 
-void table(table_t specs);
-void chair(chair_t chair);
-void lamp(lamp_t specs);
-void letterBlock(int);
-void logo(void);
-void leaf(double r, double depth);
-void potrait(void);
+void Chair(chair_t chair);
+void LetterBlock(int);
+void Logo(void);
+void Leaf(double r, double depth);
+void Potrait(int num, int tex);
 void Quad(quadr_t prop);
 void Curve(curve_t prop);
 void Plant(plant_t pl);
+void Cupboard(cbd_t c);
+void Table(table_t table);
+void Building(quadr_t *building);
+void Lamp(lamp_t lamp);
 
 #endif
