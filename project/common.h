@@ -8,6 +8,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include "CSCIx229.h"
 #include <math.h>
 //  Cosine and Sine in degrees
 #define COS(x) (cos((x)*3.1415927 / 180))

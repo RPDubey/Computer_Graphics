@@ -70,6 +70,7 @@ void idle()
     rot = fmod(45 * t, 360.0);
     //  Tell GLUT it is necessary to redisplay the scene
     glutPostRedisplay();
+    ErrCheck("idle");
 }
 
 void Project()
@@ -92,11 +93,13 @@ void Project()
     glMatrixMode(GL_MODELVIEW);
     //  Undo previous transformations
     glLoadIdentity();
+
+    ErrCheck("Project");
 }
 
-void changeview()
-{
-}
+// void changeview()
+// {
+// }
 /*
  *  GLUT calls this routine when a key is pressed
  */
@@ -306,6 +309,7 @@ void key(unsigned char ch, int x, int y)
     Project();
     //  Tell GLUT it is necessary to redisplay the scene
     glutPostRedisplay();
+    ErrCheck("key");
 }
 
 /*
@@ -341,6 +345,7 @@ void special(int key, int x, int y)
 
     //  Tell GLUT it is necessary to redisplay the scene
     glutPostRedisplay();
+    ErrCheck("special");
 }
 
 /*
@@ -354,4 +359,5 @@ void reshape(int width, int height)
     glViewport(0, 0, width, height);
 
     Project();
+    ErrCheck("reshape");
 }

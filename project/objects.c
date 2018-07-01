@@ -519,11 +519,11 @@ void Quad(quadr_t prop)
 
     glPushMatrix();
 
-    if (prop.offset)
-    {
-        glEnable(GL_POLYGON_OFFSET_FILL);
-        glPolygonOffset(1, 1);
-    }
+    // if (prop.offset)
+    // {
+    //     glEnable(GL_POLYGON_OFFSET_FILL);
+    //     glPolygonOffset(1, 1);
+    // }
 
     float spec[4] = {1, 1, 1, 1};
     float emis[4] = {0, 0, 0, 1};
@@ -533,7 +533,9 @@ void Quad(quadr_t prop)
 
     glPushMatrix();
     glColor4f(prop.col.r, prop.col.g, prop.col.b, prop.col.a);
+
     glBegin(GL_QUADS);
+
     glTexCoord2f(0.0, 0.0);
     glVertex3dv(prop.vert[0]);
     glTexCoord2f(prop.repeat, 0.0);
@@ -542,9 +544,12 @@ void Quad(quadr_t prop)
     glVertex3dv(prop.vert[2]);
     glTexCoord2f(0.0, prop.repeat);
     glVertex3dv(prop.vert[3]);
-    if (prop.offset)
-        glDisable(GL_POLYGON_OFFSET_FILL);
+
+    // if (prop.offset)
+    //     glDisable(GL_POLYGON_OFFSET_FILL);
     glEnd();
+    ErrCheck("display4e");
+
     glPopMatrix();
 
     glPopMatrix();
@@ -704,6 +709,7 @@ void Table(table_t table)
 
 void Building(quadr_t *building)
 {
+
     glPushMatrix();
 
     if (trans == 0)
@@ -759,40 +765,38 @@ void Lamp(lamp_t lamp)
             Curve(lamp.cur);
             glPopMatrix();
         }
-        if (i > 2)
+        if (i == 3)
         {
             glPushMatrix();
             glBindTexture(GL_TEXTURE_2D, i == 3 ? texture[lamp.shade] : texture[lamp.bulb]);
             glTranslated(lamp.tra[i].t[0], lamp.tra[i].t[1], lamp.tra[i].t[2]);
             glRotated(lamp.tra[i].r[0], lamp.tra[i].r[1], lamp.tra[i].r[2], lamp.tra[i].r[3]);
             glScaled(lamp.tra[i].s[0], lamp.tra[i].s[1], lamp.tra[i].s[2]);
-            if (i == 3)
-                sphere(lamp.sph);
-            else if (i == 4)
-                unitsphere(stdmat);
+
+            // if (i == 3)
+            sphere(lamp.sph);
+            // // else if (i == 4)
+            // //     unitsphere(stdmat);
             glPopMatrix();
         }
     }
 }
 
-// void CurveQuad(curve_quadr_t prop)
-// {
+void Door(door_t door)
+{
+    material_t stdmat = {shiny, WHITE, BLACK};
 
-//     for (int i = 0; i < prop.ang; i += 5)
-//     {
-//         double l = prop.l;
-//         double r = prop.r;
-//         quadr_t back = {
-//             {
-//                 {-l, r * SIN(i), r * COS(i)},
-//                 {l, r * SIN(i), r * COS(i)},
-//                 {l, r * SIN(i + 5), r * COS(i + 5)},
-//                 {-l, r * SIN(i + 5), r * COS(i + 5)},
-//             },
-//             prop.col,
-//             prop.repeat,
-//             0,
-//             {0, SIN(i), COS(i)}};
-//         Quad(back);
-//     }
-// }
+    glBindTexture(GL_TEXTURE_2D, texture[20]);
+    glPushMatrix();
+    glScaled(door.t1.s[0], door.t1.s[1], door.t1.s[2]);
+    Quad(door.q);
+    glPopMatrix();
+
+    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glPushMatrix();
+    glTranslated(door.t2.t[0], door.t2.t[1], door.t2.t[2]);
+    glScaled(door.t2.s[0], door.t2.s[1], door.t2.s[2]);
+    unitcube(stdmat);
+    glPopMatrix();
+    glBindTexture(GL_TEXTURE_2D, texture[20]);
+}

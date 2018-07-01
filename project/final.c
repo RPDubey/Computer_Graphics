@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
       texture[17] = LoadTexBMP("./texture/water.bmp");
       texture[18] = LoadTexBMP("./texture/stem.bmp");
       texture[19] = LoadTexBMP("./texture/soil1.bmp");
-      texture[20] = LoadTexBMP("./texture/brick.bmp");
+      texture[20] = LoadTexBMP("./texture/door.bmp");
 
       //  Pass control to GLUT so it can interact with the user
       glutMainLoop();

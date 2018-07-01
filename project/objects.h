@@ -57,6 +57,12 @@ typedef struct
     int base, stem, shade, bulb;
 } lamp_t;
 
+typedef struct
+{
+    transform_t t1, t2;
+    quadr_t q;
+} door_t;
+
 void Chair(chair_t chair);
 void LetterBlock(int);
 void Logo(void);
@@ -69,5 +75,6 @@ void Cupboard(cbd_t c);
 void Table(table_t table);
 void Building(quadr_t *building);
 void Lamp(lamp_t lamp);
+void Door(door_t door);
 
 #endif

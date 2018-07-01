@@ -7,6 +7,7 @@
 *@date:06/10/2018
 */
 
+#include "CSCIx229.h"
 #include "display.h"
 #include "cube.h"
 #include "common.h"
@@ -15,7 +16,6 @@
 #include "cone.h"
 #include "objects.h"
 #include "final.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -72,7 +72,7 @@ extern float sco;
 
 const room_dim_t room = {LENGTH, BREATH, HEIGHT};
 
-static float lb_pos[] = {-46, 32, -60, 1}; //night light position for spotlight
+static float lb_pos[] = {-48, 39, -60, 1}; //night light position for spotlight
 
 // material_t stdmat;
 void Print(const char *format, ...);
@@ -82,6 +82,8 @@ int trans = 0;
  */
 void display()
 {
+
+    ErrCheck("display1");
 
     //  Clear the image, depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -116,6 +118,8 @@ void display()
     //Flat or smooth(calculate color for each vertex and interpolate) shading
     glShadeModel(GL_SMOOTH);
 
+    ErrCheck("display2");
+
     if (light)
     {
         //position of the light source
@@ -124,7 +128,7 @@ void display()
         //draw the ball representing light source
         glColor3f(1, 1, 1);
         material_t mat = {shiny, YELLOW, YELLOW};
-        ball(pos[0], pos[1], pos[2], 2, YELLOW, mat);
+        ball(pos[0], pos[1], pos[2], 1, YELLOW, mat);
 
         //  OpenGL should normalize normal vectors
         glEnable(GL_NORMALIZE);
@@ -139,10 +143,10 @@ void display()
         //Ambient & diffuse material properties of front & back track the current color
         glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
         glEnable(GL_COLOR_MATERIAL); //apply color to the material described on color call
-        float yellow[] = {1.0, 1.0, 0, 1.0};
-        //  Set specular colors
-        glMaterialfv(GL_FRONT, GL_SPECULAR, yellow);
-        glMaterialf(GL_FRONT, GL_SHININESS, shiny);
+        // float yellow[] = {1.0, 1.0, 0, 1.0};
+        // //  Set specular colors
+        // glMaterialfv(GL_FRONT, GL_SPECULAR, yellow);
+        // glMaterialf(GL_FRONT, GL_SHININESS, shiny);
         //  Enable light 0
         glEnable(GL_LIGHT0);
 
@@ -174,18 +178,10 @@ void display()
         specular = 0;
         local = 1;
 
-        //position of the light source
-        float pos[] = {distance * SIN(rot) * COS(roty), distance * SIN(roty), distance * COS(rot) * COS(roty), 1};
-
-        // float pos1[] = {-46, 32, -65, 1}; //{0, 0, distance / 4.0, 1};
-
-        // float pos[4] = {5, 10, 20, 1};
         //draw the ball representing light source
         glColor3f(1, 1, 1);
         material_t mat = {shiny, YELLOW, YELLOW};
-        // ball(pos[0], pos[1], pos[2], 2, YELLOW, mat);
-
-        // ball(pos1[0], pos1[1], pos1[2], 1, YELLOW, mat);
+        ball(lb_pos[0], lb_pos[1], lb_pos[2], 1, YELLOW, mat);
 
         //  OpenGL should normalize normal vectors
         glEnable(GL_NORMALIZE);
@@ -215,10 +211,8 @@ void display()
         glLightfv(GL_LIGHT0, GL_SPECULAR, Specular);
         glLightfv(GL_LIGHT0, GL_POSITION, lb_pos);
 
-        // float sco = 180; //  Spot cutoff angle
         float Exp = 1; //  Spot exponent
-        // float Direction[] = {pos[0], pos[1], pos[2], 0};
-        float Direction[] = {-COS(10), -SIN(10), 0, 0}; //{0, 0, -distance / 4.0, 0};
+        float Direction[] = {-COS(10), -SIN(10), 0, 0};
 
         //        Set spotlight parameters
         glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, Direction);
@@ -226,10 +220,12 @@ void display()
         glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, Exp);
 
         //  Set attenuation
-        // glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, at0 / 100.0);
-        // glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, at1 / 100.0);
-        // glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, at2 / 100.0);
+        glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, at0 / 100.0);
+        glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, at1 / 100.0);
+        glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, at2 / 100.0);
     }
+    ErrCheck("display3");
+
     /*********************Draw objects***********************/
 
     //Enable texture
@@ -283,13 +279,6 @@ void display()
         glPopMatrix();
 
         glPushMatrix();
-        glTranslated(-30, 0, -65);
-        glRotated(-90, 0, 1, 0);
-        glScaled(.6, 0.6, 0.6);
-        Lamp(lamp);
-        glPopMatrix();
-
-        glPushMatrix();
         glTranslated(-73, 30, -60);
         glRotated(90, 0, 1, 0);
         glScaled(.25, .25, 1);
@@ -297,11 +286,27 @@ void display()
         glPopMatrix();
 
         glPushMatrix();
-        glTranslated(-46, 32, -65);
-        glRotated(90, 0, 0, 0);
-        unitsphere(stdmat);
+        glTranslated(-33, 1, -60);
+        glRotated(-90, 0, 1, 0);
+        glScaled(.6, 0.7, 0.6);
+        Lamp(lamp);
         glPopMatrix();
 
+        glPushMatrix();
+        glTranslated(0, 0, 75.6);
+        // glRotated(-90, 0, 1, 0);
+        glScaled(1, 1, 1);
+        Door(door);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslated(0, 0, 74.4);
+        glRotated(180, 0, 1, 0);
+        glScaled(1, 1, 1);
+        Door(door);
+        glPopMatrix();
+
+        // draw objects with transparent parts.FIrst iteration, solid, 2nd transparent
         for (trans = 0; trans < 2; trans++)
         {
             glPushMatrix();
@@ -317,6 +322,7 @@ void display()
         }
 
         // glPopMatrix();
+        ErrCheck("display4");
     }
 
     //draw the individual elements
@@ -366,11 +372,13 @@ void display()
 
     if (obj == 7) //potrait //text
     {
-        Potrait(100, 0);
+
+        Door(door);
     }
 
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
+    ErrCheck("display5");
 
     //particle system
     //night mode
@@ -400,6 +408,7 @@ void display()
         glRasterPos3d(0, 0, dim / 2);
         Print("Z");
     }
+    ErrCheck("display6");
 
     //  Display parameters
     glWindowPos2i(5, 5);
@@ -421,6 +430,9 @@ void display()
 
     glFlush();
     glutSwapBuffers();
+
+    ErrCheck("display");
+    ErrCheck("displayF");
 }
 
 void Print(const char *format, ...)
@@ -436,4 +448,6 @@ void Print(const char *format, ...)
     //  Display the characters one at a time at the current raster position
     while (*ch)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *ch++);
+
+    ErrCheck("Print");
 }
