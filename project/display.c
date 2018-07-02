@@ -72,6 +72,22 @@ extern float sco;
 
 const room_dim_t room = {LENGTH, BREATH, HEIGHT};
 
+#ifdef PARTICLE
+double p[3] = {0, 0, 0};
+
+double thyx = 10;
+double thxz = 90;
+double delx;
+double dely;
+double delz;
+
+double le = 30;
+double br = 30;
+double he = 30;
+double rad = 2;
+
+#endif
+
 static float lb_pos[] = {-48, 39, -60, 1}; //night light position for spotlight
 
 // material_t stdmat;
@@ -80,6 +96,7 @@ int trans = 0;
 /*
  *  Display the scene
  */
+
 void display()
 {
 
@@ -372,8 +389,25 @@ void display()
 
     if (obj == 7) //potrait //text
     {
+#ifdef PARTICLE
+        //emissive sphere
+        color_t col = {1, 1, 0, 1};
+        material_t mat = {8, {0, 0, 0, 0}, {1, 0, 0, 1}};
+        ball(p[0], p[1], p[2], rad, col, mat);
+        material_t stdmat = {shiny, WHITE, BLACK};
 
-        Door(door);
+        //box
+        glBindTexture(GL_TEXTURE_2D, texture[4]);
+        ENABLE_TRANSPARENCY
+        glPushMatrix();
+        glTranslated(0, 0, 0);
+        glRotated(0, 0, 0, 0);
+        glScaled(le, br, he);
+        unitcube(stdmat);
+        glPopMatrix();
+        glDisable(GL_BLEND);
+        glDepthMask(1);
+#endif
     }
 
     glDisable(GL_TEXTURE_2D);
@@ -421,7 +455,7 @@ void display()
     if (1)
     {
         glWindowPos2i(5, 65);
-        Print("sco=%.2f", sco);
+        Print("thyx=%.2f,thxz=%.2f", thyx, thxz);
         glWindowPos2i(5, 45);
         Print("LocalViewer=%d Distance=%.2f Azimuth=%d, Elevation=%d rep =%.2f", local, distance, rot, roty, rep);
         glWindowPos2i(5, 25);

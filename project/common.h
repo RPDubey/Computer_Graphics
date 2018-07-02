@@ -15,6 +15,7 @@
 #define SIN(x) (sin((x)*3.1415927 / 180))
 #define PERSPECTIVE
 // #define PRODUCTION
+#define PARTICLE
 
 #define WSTEP (1.0)
 #define FOV (55)

@@ -25,7 +25,7 @@ double dim = DIM; // Dimensions of orthogonal box
 double asp = 1;   //aspect ration
 int fov = FOV;    //  Field of view (for perspective)
 int mode = 1;     //orthogonal,perspective,first person
-int obj = 0;      //object to be displayed
+int obj = 7;      //object to be displayed
 
 //light related
 int light = 1; //light source on/off
@@ -60,6 +60,71 @@ extern double r;
 extern room_dim_t room;
 float sco = 20;
 
+#ifdef PARTICLE
+extern double p[3];
+
+extern double thyx;
+extern double thxz;
+extern double delx;
+extern double dely;
+extern double delz;
+double del = 0.1;
+extern double le;
+extern double br;
+extern double he;
+double temp_p[3];
+extern double rad;
+
+#endif
+
+int ifcolission(double pos[3])
+{
+
+    if (pos[0] <= -le + rad)
+    {
+        thyx = thyx;
+        thxz = -thxz;
+        return 1;
+    }
+    if (pos[2] >= br - rad)
+    {
+        thyx = -thyx;
+        thxz = thxz;
+        return 1;
+    }
+
+    if (pos[0] >= le - rad)
+    {
+        thyx = thyx;
+        thxz = -thxz;
+        return 1;
+    }
+
+    if (pos[2] <= -br + rad)
+    {
+        thyx = -thyx;
+        thxz = thxz;
+        return 1;
+    }
+
+    if (pos[1] >= he - rad)
+
+    {
+        thyx = -thyx;
+        thxz = thxz;
+        return 1;
+    }
+
+    if (pos[1] <= -he + rad)
+
+    {
+        thyx = -thyx;
+        thxz = thxz;
+        return 1;
+    }
+    return 0;
+}
+
 /*
  *  GLUT calls this routine when the window is resized
  */
@@ -68,6 +133,37 @@ void idle()
     //  Elapsed time in seconds
     double t = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
     rot = fmod(45 * t, 360.0);
+
+#ifdef PARTICLE
+    delx = del * COS(thyx) * SIN(thxz);
+    dely = del * SIN(thyx);
+    delz = del * COS(thyx) * COS(thxz);
+
+    temp_p[0] = p[0];
+    temp_p[1] = p[1];
+    temp_p[2] = p[2];
+
+    p[0] += delx;
+    p[1] += dely;
+    p[2] += delz;
+
+    if (ifcolission(p))
+    {
+
+        p[0] = temp_p[0];
+        p[1] = temp_p[1];
+        p[2] = temp_p[2];
+
+        delx = del * COS(thyx) * SIN(thxz);
+        dely = del * SIN(thyx);
+        delz = del * COS(thyx) * COS(thxz);
+
+        p[0] += delx;
+        p[1] += dely;
+        p[2] += delz;
+    }
+
+#endif
     //  Tell GLUT it is necessary to redisplay the scene
     glutPostRedisplay();
     ErrCheck("idle");
