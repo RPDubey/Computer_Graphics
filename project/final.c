@@ -12,7 +12,7 @@
 #include "keys.h"
 #include "CSCIx229.h"
 #include "common.h"
-
+#include <time.h>
 //  OpenGL with prototypes for glext
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glut.h>
@@ -28,6 +28,10 @@ extern double Cy;
 extern double Cz;
 
 extern room_dim_t room;
+extern double unorm[3];
+extern double thyx;
+extern double thxz;
+
 /*
  *  Start up GLUT and tell it what to do
  */
@@ -44,6 +48,13 @@ int main(int argc, char *argv[])
       Cx = 0;
       Cy = 16;
       Cz = Ez1 - 1;
+      srand(time(0));
+      thyx = rand();
+      srand(time(0));
+      thxz = rand();
+      unorm[0] = COS(thyx) * SIN(thxz);
+      unorm[1] = SIN(thyx);
+      unorm[2] = COS(thyx) * COS(thxz);
 
       //  Initialize GLUT and process user parameters
       glutInit(&argc, argv);
@@ -85,6 +96,7 @@ int main(int argc, char *argv[])
       texture[18] = LoadTexBMP("./texture/stem.bmp");
       texture[19] = LoadTexBMP("./texture/soil1.bmp");
       texture[20] = LoadTexBMP("./texture/door.bmp");
+      texture[21] = LoadTexBMP("./texture/glaas.bmp");
 
       //  Pass control to GLUT so it can interact with the user
       glutMainLoop();

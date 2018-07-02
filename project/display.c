@@ -75,11 +75,12 @@ const room_dim_t room = {LENGTH, BREATH, HEIGHT};
 #ifdef PARTICLE
 double p[3] = {0, 0, 0};
 
-double thyx = 10;
-double thxz = 90;
-double delx;
-double dely;
-double delz;
+double thyx;
+double thxz;
+// double delx;
+// double dely;
+// double delz;
+extern double unorm[3];
 
 double le = 30;
 double br = 30;
@@ -255,7 +256,7 @@ void display()
         trans = 0;
         // glPushMatrix();
 
-        material_t stdmat = {shiny, WHITE, BLACK};
+        // material_t stdmat = {shiny, WHITE, BLACK};
 
         glPushMatrix();
         glTranslated(-65, 0, 0);
@@ -390,20 +391,23 @@ void display()
     if (obj == 7) //potrait //text
     {
 #ifdef PARTICLE
+
         //emissive sphere
-        color_t col = {1, 1, 0, 1};
-        material_t mat = {8, {0, 0, 0, 0}, {1, 0, 0, 1}};
+        color_t col = {1, 0, 0, 1};
+        material_t mat = {4, {0, 0, 0, 1}, {1, 0, 0, 1}};
         ball(p[0], p[1], p[2], rad, col, mat);
         material_t stdmat = {shiny, WHITE, BLACK};
-
+        col = (color_t){1, 1, 1, .2};
         //box
-        glBindTexture(GL_TEXTURE_2D, texture[4]);
+        glBindTexture(GL_TEXTURE_2D, texture[17]);
         ENABLE_TRANSPARENCY
         glPushMatrix();
         glTranslated(0, 0, 0);
         glRotated(0, 0, 0, 0);
         glScaled(le, br, he);
-        unitcube(stdmat);
+
+        cube((cube_t){2, 0, 0, 0, 1, 1, 1, 0, 0, {col, col, col, col, col, col}, stdmat});
+
         glPopMatrix();
         glDisable(GL_BLEND);
         glDepthMask(1);
@@ -455,7 +459,7 @@ void display()
     if (1)
     {
         glWindowPos2i(5, 65);
-        Print("thyx=%.2f,thxz=%.2f", thyx, thxz);
+        Print("x,y,z=%.2f,%.2f,%.2f", unorm[0], unorm[1], unorm[2]);
         glWindowPos2i(5, 45);
         Print("LocalViewer=%d Distance=%.2f Azimuth=%d, Elevation=%d rep =%.2f", local, distance, rot, roty, rep);
         glWindowPos2i(5, 25);

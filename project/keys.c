@@ -65,15 +65,16 @@ extern double p[3];
 
 extern double thyx;
 extern double thxz;
-extern double delx;
-extern double dely;
-extern double delz;
-double del = 0.1;
+// extern double delx;
+// extern double dely;
+// extern double delz;
+double del = 0.5;
 extern double le;
 extern double br;
 extern double he;
 double temp_p[3];
 extern double rad;
+volatile double unorm[3];
 
 #endif
 
@@ -82,44 +83,191 @@ int ifcolission(double pos[3])
 
     if (pos[0] <= -le + rad)
     {
-        thyx = thyx;
-        thxz = -thxz;
+        double i[3] =
+            {
+                (pos[0] - temp_p[0]),
+                (pos[1] - temp_p[1]),
+                (pos[2] - temp_p[2]),
+            };
+        double mag = pow((i[0] * i[0] + i[1] * i[1] + i[2] * i[2]), 0.5);
+        i[0] /= mag;
+        i[1] /= mag;
+        i[2] /= mag;
+
+        double norm[3] = {1, 0, 0};
+        double dot = norm[0] * i[0] + norm[1] * i[1] + norm[2] * i[2];
+        double r[3];
+        for (int j = 0; j < 3; j++)
+        {
+            r[j] = i[j] - 2 * dot * norm[j];
+        }
+        mag = pow((r[0] * r[0] + r[1] * r[1] + r[2] * r[2]), 0.5);
+        r[0] /= mag;
+        r[1] /= mag;
+        r[2] /= mag;
+        unorm[0] = r[0];
+        unorm[1] = r[1];
+        unorm[2] = r[2];
         return 1;
     }
     if (pos[2] >= br - rad)
     {
-        thyx = -thyx;
-        thxz = thxz;
+        double i[3] =
+            {
+                (pos[0] - temp_p[0]),
+                (pos[1] - temp_p[1]),
+                (pos[2] - temp_p[2]),
+            };
+        double mag = pow((i[0] * i[0] + i[1] * i[1] + i[2] * i[2]), 0.5);
+        i[0] /= mag;
+        i[1] /= mag;
+        i[2] /= mag;
+
+        double norm[3] = {0, 0, -1};
+        double dot = norm[0] * i[0] + norm[1] * i[1] + norm[2] * i[2];
+        double r[3];
+        for (int j = 0; j < 3; j++)
+        {
+            r[j] = i[j] - 2 * dot * norm[j];
+        }
+        mag = pow((r[0] * r[0] + r[1] * r[1] + r[2] * r[2]), 0.5);
+        r[0] /= mag;
+        r[1] /= mag;
+        r[2] /= mag;
+        unorm[0] = r[0];
+        unorm[1] = r[1];
+        unorm[2] = r[2];
+
         return 1;
     }
 
     if (pos[0] >= le - rad)
     {
-        thyx = thyx;
-        thxz = -thxz;
+        // thyx = 180 - thyx;
+        // thxz = -thxz;
+        double i[3] =
+            {
+                (pos[0] - temp_p[0]),
+                (pos[1] - temp_p[1]),
+                (pos[2] - temp_p[2]),
+            };
+        double mag = pow((i[0] * i[0] + i[1] * i[1] + i[2] * i[2]), 0.5);
+        i[0] /= mag;
+        i[1] /= mag;
+        i[2] /= mag;
+
+        double norm[3] = {-1, 0, 0};
+        double dot = norm[0] * i[0] + norm[1] * i[1] + norm[2] * i[2];
+        double r[3];
+        for (int j = 0; j < 3; j++)
+        {
+            r[j] = i[j] - 2 * dot * norm[j];
+        }
+        mag = pow((r[0] * r[0] + r[1] * r[1] + r[2] * r[2]), 0.5);
+        r[0] /= mag;
+        r[1] /= mag;
+        r[2] /= mag;
+        unorm[0] = r[0];
+        unorm[1] = r[1];
+        unorm[2] = r[2];
+
         return 1;
     }
 
     if (pos[2] <= -br + rad)
     {
-        thyx = -thyx;
-        thxz = thxz;
+        double i[3] =
+            {
+                (pos[0] - temp_p[0]),
+                (pos[1] - temp_p[1]),
+                (pos[2] - temp_p[2]),
+            };
+        double mag = pow((i[0] * i[0] + i[1] * i[1] + i[2] * i[2]), 0.5);
+        i[0] /= mag;
+        i[1] /= mag;
+        i[2] /= mag;
+
+        double norm[3] = {0, 0, 1};
+        double dot = norm[0] * i[0] + norm[1] * i[1] + norm[2] * i[2];
+        double r[3];
+        for (int j = 0; j < 3; j++)
+        {
+            r[j] = i[j] - 2 * dot * norm[j];
+        }
+        mag = pow((r[0] * r[0] + r[1] * r[1] + r[2] * r[2]), 0.5);
+        r[0] /= mag;
+        r[1] /= mag;
+        r[2] /= mag;
+
+        unorm[0] = r[0];
+        unorm[1] = r[1];
+        unorm[2] = r[2];
+
         return 1;
     }
 
     if (pos[1] >= he - rad)
 
     {
-        thyx = -thyx;
-        thxz = thxz;
+        double i[3] =
+            {
+                (pos[0] - temp_p[0]),
+                (pos[1] - temp_p[1]),
+                (pos[2] - temp_p[2]),
+            };
+        double mag = pow((i[0] * i[0] + i[1] * i[1] + i[2] * i[2]), 0.5);
+        i[0] /= mag;
+        i[1] /= mag;
+        i[2] /= mag;
+
+        double norm[3] = {0, -1, 0};
+        double dot = norm[0] * i[0] + norm[1] * i[1] + norm[2] * i[2];
+        double r[3];
+        for (int j = 0; j < 3; j++)
+        {
+            r[j] = i[j] - 2 * dot * norm[j];
+        }
+        mag = pow((r[0] * r[0] + r[1] * r[1] + r[2] * r[2]), 0.5);
+        r[0] /= mag;
+        r[1] /= mag;
+        r[2] /= mag;
+        unorm[0] = r[0];
+        unorm[1] = r[1];
+        unorm[2] = r[2];
+
         return 1;
     }
 
     if (pos[1] <= -he + rad)
 
     {
-        thyx = -thyx;
-        thxz = thxz;
+        double i[3] =
+            {
+                (pos[0] - temp_p[0]),
+                (pos[1] - temp_p[1]),
+                (pos[2] - temp_p[2]),
+            };
+        double mag = pow((i[0] * i[0] + i[1] * i[1] + i[2] * i[2]), 0.5);
+        i[0] /= mag;
+        i[1] /= mag;
+        i[2] /= mag;
+
+        double norm[3] = {0, 1, 0};
+        double dot = norm[0] * i[0] + norm[1] * i[1] + norm[2] * i[2];
+        double r[3];
+        for (int j = 0; j < 3; j++)
+        {
+            r[j] = i[j] - 2 * dot * norm[j];
+        }
+        mag = pow((r[0] * r[0] + r[1] * r[1] + r[2] * r[2]), 0.5);
+        r[0] /= mag;
+        r[1] /= mag;
+        r[2] /= mag;
+
+        unorm[0] = r[0];
+        unorm[1] = r[1];
+        unorm[2] = r[2];
+
         return 1;
     }
     return 0;
@@ -135,32 +283,25 @@ void idle()
     rot = fmod(45 * t, 360.0);
 
 #ifdef PARTICLE
-    delx = del * COS(thyx) * SIN(thxz);
-    dely = del * SIN(thyx);
-    delz = del * COS(thyx) * COS(thxz);
 
     temp_p[0] = p[0];
     temp_p[1] = p[1];
     temp_p[2] = p[2];
 
-    p[0] += delx;
-    p[1] += dely;
-    p[2] += delz;
+    p[0] += del * unorm[0];
+    p[1] += del * unorm[1];
+    p[2] += del * unorm[2];
 
     if (ifcolission(p))
     {
 
-        p[0] = temp_p[0];
-        p[1] = temp_p[1];
-        p[2] = temp_p[2];
+        // p[0] = temp_p[0];
+        // p[1] = temp_p[1];
+        // p[2] = temp_p[2];
 
-        delx = del * COS(thyx) * SIN(thxz);
-        dely = del * SIN(thyx);
-        delz = del * COS(thyx) * COS(thxz);
-
-        p[0] += delx;
-        p[1] += dely;
-        p[2] += delz;
+        p[0] += 1 * del * unorm[0];
+        p[1] += 1 * del * unorm[1];
+        p[2] += 1 * del * unorm[2];
     }
 
 #endif
