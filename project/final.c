@@ -1,11 +1,11 @@
 
 /*
-*@Filename: hw2.c
-*@brief:Implements requirements for CSCI 5229 hw2
-*certain modifications and additions have been made to professor Schreuder's example 6
+*@Filename: final.c
+*@brief:Implements  CSCI 5229 Project
+*certain modifications and additions have been made to professor Schreuder's example
 *for this code
 *@author:Ravi Prakash Dubey
-*@date:06/10/2018
+*@date:06/28/2018
 */
 
 #include "display.h"
@@ -17,41 +17,91 @@
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glut.h>
 
+/*************Global Variable***************/
+
 unsigned int texture[NUMBER_OF_TEXTURE]; //  Texture names
 
-extern double Ex1;
-extern double Ey1;
-extern double Ez1;
+int th = 25;  // Azimuth of view angle
+int ph = 45;  // Elevation of view angle
+int axes = 0; //determines axes options
 
-extern double Cx;
-extern double Cy;
-extern double Cz;
+double dim = DIM; // Dimensions of orthogonal box
+double asp = 1;   //aspect ration
+int fov = FOV;    //  Field of view (for perspective)
+int mode = 2;     //orthogonal,perspective,first person
+int obj = 0;      //object to be displayed
 
-extern room_dim_t room;
-extern double unorm[3];
-extern double thyx;
-extern double thxz;
+//perspective related
+double Ex1 = 0;
+double Ey1 = 0;
+double Ez1 = 0;
+double Cx = 0;
+double Cy = 0;
+double Cz = 0;
+double dx = 0;
+double dy = 0;
+double dz = 0;
+
+const room_dim_t room = {LENGTH, BREATH, HEIGHT};
+
+int zratio = 4;
+
+//bounce ball system related
+double p[3] = {XPOS, YPOS, ZPOS};       //ball position
+double box_pos[3] = {XPOS, YPOS, ZPOS}; //transparent box position
+
+double thyx;
+double thxz;
+double le = 10;
+double br = 10;
+double he = 10;
+double rad = 1;
+double del = 0.2;
+double temp_p[3];
+volatile double unorm[3];
+
+//attenuation
+double at0 = 1;
+double at1 = 1;
+double at2 = 0;
+
+//light related
+int light = 1; //light source on/off
+int rot = 90;
+int roty = 40;
+int move = 1;
+int emission = 0;  // Emission intensity (%)
+int ambient = 20;  // Ambient intensity (%)
+int diffuse = 100; // Diffuse intensity (%)
+int specular = 75; // Specular intensity (%)
+int shininess = 3; // Shininess (power of two)
+float shiny = 8;   // Shininess (value)
+float rep = 1;
+double distance = 1.4 * DIM;
+int local = 0;
+int side = 0;
+float sco = 20;
 
 /*
  *  Start up GLUT and tell it what to do
  */
 
-extern int zratio;
 int main(int argc, char *argv[])
 {
 
       //some global initialization
-      Ex1 = 0;
-      Ey1 = 16;
-      Ez1 = 1 + (double)DIM / zratio;
 
+      //initil eye and object position
+      Ex1 = 0;
+      Ey1 = 20;
+      Ez1 = 65;
       Cx = 0;
-      Cy = 16;
+      Cy = 20;
       Cz = Ez1 - 1;
-      srand(time(0));
-      thyx = rand();
-      srand(time(0));
-      thxz = rand();
+
+      //intial direction of bounce ball
+      thyx = 60;
+      thxz = 70;
       unorm[0] = COS(thyx) * SIN(thxz);
       unorm[1] = SIN(thyx);
       unorm[2] = COS(thyx) * COS(thxz);
@@ -63,7 +113,7 @@ int main(int argc, char *argv[])
       //  Request 500 x 500 pixel window
       glutInitWindowSize(1024, 1024);
       //  Create the window
-      glutCreateWindow("Ravi Prakash Dubey Final");
+      glutCreateWindow("Ravi Prakash Dubey - Final");
       //  Tell GLUT to call "display" when the scene should be drawn
       glutDisplayFunc(display);
       //  Tell GLUT to call "reshape" when the window is resized
@@ -75,19 +125,16 @@ int main(int argc, char *argv[])
       //register idle function, to be called when glut is idle
       glutIdleFunc(idle);
 
-      texture[0] = LoadTexBMP("./texture/mlf.bmp");
+      texture[0] = LoadTexBMP("./texture/painting.bmp");
       texture[1] = LoadTexBMP("./texture/back.bmp");
       texture[2] = LoadTexBMP("./texture/gold.bmp");
       texture[3] = LoadTexBMP("./texture/leaf.bmp");
       texture[4] = LoadTexBMP("./texture/metal.bmp");
-      texture[5] = LoadTexBMP("./texture/logo.bmp");
-      texture[6] = LoadTexBMP("./texture/crate.bmp");
-      texture[7] = LoadTexBMP("./texture/earth.bmp");
       texture[8] = LoadTexBMP("./texture/floor.bmp");
       texture[9] = LoadTexBMP("./texture/pot.bmp");
       texture[10] = LoadTexBMP("./texture/wall1.bmp");
       texture[11] = LoadTexBMP("./texture/roof.bmp");
-      texture[12] = LoadTexBMP("./texture/final.bmp");
+      texture[12] = LoadTexBMP("./texture/wood.bmp");
       texture[13] = LoadTexBMP("./texture/book.bmp");
       texture[14] = LoadTexBMP("./texture/book1.bmp");
       texture[15] = LoadTexBMP("./texture/book2.bmp");

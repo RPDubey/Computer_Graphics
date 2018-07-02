@@ -2,7 +2,7 @@
 *@Filename: common.h
 *@brief:contains some common definitions
 *@author:Ravi Prakash Dubey
-*@date:06/16/2018
+*@date:06/28/2018
 */
 
 #ifndef COMMON_H
@@ -13,6 +13,11 @@
 //  Cosine and Sine in degrees
 #define COS(x) (cos((x)*3.1415927 / 180))
 #define SIN(x) (sin((x)*3.1415927 / 180))
+
+#define XPOS -60
+#define YPOS 10
+#define ZPOS 40
+
 #define PERSPECTIVE
 // #define PRODUCTION
 #define PARTICLE
@@ -51,6 +56,8 @@
 #define WHITE ((color_t){1, 1, 1, 1})
 #define BLACK ((color_t){0, 0, 0, 1})
 #define OFWHITE ((color_t){1, 1, .94, 1})
+
+//some common structures
 
 //structure for color
 typedef struct

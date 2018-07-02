@@ -2,7 +2,7 @@
 *@Filename: objects.h
 *@brief:function definition and data structures for drawing complex objects.
 *@author:Ravi Prakash Dubey
-*@date:06/16/2018
+*@date:06/29/2018
 */
 
 #ifndef OBJECTS_H
@@ -76,5 +76,6 @@ void Table(table_t table);
 void Building(quadr_t *building);
 void Lamp(lamp_t lamp);
 void Door(door_t door);
+void bounceBall();
 
 #endif

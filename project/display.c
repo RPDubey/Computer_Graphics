@@ -4,7 +4,7 @@
 *certain modifications and additions have been made to professor Schreuder's examples
 *for this code
 *@author:Ravi Prakash Dubey
-*@date:06/10/2018
+*@date:06/28/2018
 */
 
 #include "CSCIx229.h"
@@ -40,22 +40,22 @@ extern double dx;
 extern double dy;
 extern double dz;
 
-double Ex1 = 0;
-double Ey1 = 0;
-double Ez1 = 0;
+extern double Ex1;
+extern double Ey1;
+extern double Ez1;
 
-double Cx = 0;
-double Cy = 0;
-double Cz = 0;
+extern double Cx;
+extern double Cy;
+extern double Cz;
 
 extern int obj;
 extern int light;
 extern int rot;
 extern int roty;
-int local = 0;
-int side = 0;
+extern int local;
+extern int side;
 
-double distance = 1.4 * DIM;
+extern double distance;
 
 extern int emission;  // Emission intensity (%)
 extern int ambient;   // Ambient intensity (%)
@@ -63,35 +63,26 @@ extern int diffuse;   // Diffuse intensity (%)
 extern int specular;  // Specular intensity (%)
 extern int shininess; // Shininess (power of two)
 extern float shiny;   // Shininess (value)
-double at0 = 1;
-double at1 = 1;
-double at2 = 0;
+extern double at0;
+extern double at1;
+extern double at2;
+
 extern unsigned int texture[NUMBER_OF_TEXTURE]; //  Texture names
 extern float rep;
 extern float sco;
 
-const room_dim_t room = {LENGTH, BREATH, HEIGHT};
+extern double p[3];       //ball position
+extern double box_pos[3]; //transparent box position
 
-#ifdef PARTICLE
-double p[3] = {0, 0, 0};
-
-double thyx;
-double thxz;
-// double delx;
-// double dely;
-// double delz;
 extern double unorm[3];
-
-double le = 30;
-double br = 30;
-double he = 30;
-double rad = 2;
-
-#endif
+extern double le;
+extern double br;
+extern double he;
+extern double rad;
+extern room_dim_t room;
 
 static float lb_pos[] = {-48, 39, -60, 1}; //night light position for spotlight
 
-// material_t stdmat;
 void Print(const char *format, ...);
 int trans = 0;
 /*
@@ -110,7 +101,6 @@ void display()
     //  Reset previous transforms
     glLoadIdentity();
 
-    // stdmat = {shiny, WHITE, BLACK};
     if (mode == 0) //orthogonal
     {
         glRotatef(ph, 1, 0, 0);
@@ -140,6 +130,8 @@ void display()
 
     if (light)
     {
+        glDisable(GL_LIGHT1);
+
         //position of the light source
         float pos[] = {distance * SIN(rot) * COS(roty), distance * SIN(roty), distance * COS(rot) * COS(roty), 1};
 
@@ -161,10 +153,6 @@ void display()
         //Ambient & diffuse material properties of front & back track the current color
         glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
         glEnable(GL_COLOR_MATERIAL); //apply color to the material described on color call
-        // float yellow[] = {1.0, 1.0, 0, 1.0};
-        // //  Set specular colors
-        // glMaterialfv(GL_FRONT, GL_SPECULAR, yellow);
-        // glMaterialf(GL_FRONT, GL_SHININESS, shiny);
         //  Enable light 0
         glEnable(GL_LIGHT0);
 
@@ -179,11 +167,6 @@ void display()
         glLightfv(GL_LIGHT0, GL_SPECULAR, Specular);
         glLightfv(GL_LIGHT0, GL_POSITION, pos);
 
-        //  Set spotlight parameters
-        // glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, Direction);
-        // glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, sco);
-        // glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, Exp);
-
         //  Set attenuation
         glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, at0 / 100.0);
         glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, at1 / 100.0);
@@ -191,10 +174,12 @@ void display()
     }
     else if (!light)
     {
+        glDisable(GL_LIGHT0);
+
         ambient = 0;
         diffuse = 100;
         specular = 0;
-        local = 1;
+        local = 0;
 
         //draw the ball representing light source
         glColor3f(1, 1, 1);
@@ -216,7 +201,7 @@ void display()
         glEnable(GL_COLOR_MATERIAL); //apply color to the material described on color call
 
         //  Enable light 1
-        glEnable(GL_LIGHT0);
+        glEnable(GL_LIGHT1);
 
         //  Translate intensity to color vectors
         float Ambient[] = {0.01 * ambient, 0.01 * ambient, 0.01 * ambient, 1.0};
@@ -224,18 +209,18 @@ void display()
         float Specular[] = {0.01 * specular, 0.01 * specular, 0.01 * specular, 1.0};
         glColor3f(1, 1, 1); //color for light
         //  Set ambient, diffuse, specular components and position of light 0
-        glLightfv(GL_LIGHT0, GL_AMBIENT, Ambient);
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, Diffuse);
-        glLightfv(GL_LIGHT0, GL_SPECULAR, Specular);
-        glLightfv(GL_LIGHT0, GL_POSITION, lb_pos);
+        glLightfv(GL_LIGHT1, GL_AMBIENT, Ambient);
+        glLightfv(GL_LIGHT1, GL_DIFFUSE, Diffuse);
+        glLightfv(GL_LIGHT1, GL_SPECULAR, Specular);
+        glLightfv(GL_LIGHT1, GL_POSITION, lb_pos);
 
         float Exp = 1; //  Spot exponent
         float Direction[] = {-COS(10), -SIN(10), 0, 0};
 
         //        Set spotlight parameters
-        glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, Direction);
-        glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, sco);
-        glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, Exp);
+        glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, Direction);
+        glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, sco);
+        glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, Exp);
 
         //  Set attenuation
         glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, at0 / 100.0);
@@ -253,11 +238,11 @@ void display()
     //draw the entire scene
     if (obj == 0)
     {
+
+        //draw solid objects before transparent
+
+        //Cupboard
         trans = 0;
-        // glPushMatrix();
-
-        // material_t stdmat = {shiny, WHITE, BLACK};
-
         glPushMatrix();
         glTranslated(-65, 0, 0);
         glRotated(90, 0, 1, 0);
@@ -265,23 +250,25 @@ void display()
         Cupboard(cupboard);
         glPopMatrix();
 
+        //Chair
         glPushMatrix();
-        glTranslated(30, 4, -60);
-        glScaled(.5, .5, .5);
+        glTranslated(30, 3.2, -60);
+        glScaled(.8, .8, .8);
         Chair(chair_specs);
         glPopMatrix();
 
         glPushMatrix();
-        glTranslated(60, 4, -30);
+        glTranslated(60, 3.2, -30);
         glRotated(-90, 0, 1, 0);
-        glScaled(.5, .5, .5);
+        glScaled(.8, .8, .8);
         Chair(chair_specs);
         glPopMatrix();
 
+        //Plant
         glPushMatrix();
         glTranslated(65, 0, 0);
         glRotated(0, 0, 0, 0);
-        glScaled(.5, 0.5, 0.5);
+        glScaled(.4, 0.5, 0.4);
         glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
         Plant(pl);
         glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
@@ -296,6 +283,7 @@ void display()
         glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
         glPopMatrix();
 
+        //Potrait
         glPushMatrix();
         glTranslated(-73, 30, -60);
         glRotated(90, 0, 1, 0);
@@ -310,6 +298,7 @@ void display()
         Lamp(lamp);
         glPopMatrix();
 
+        //Door
         glPushMatrix();
         glTranslated(0, 0, 75.6);
         // glRotated(-90, 0, 1, 0);
@@ -325,6 +314,7 @@ void display()
         glPopMatrix();
 
         // draw objects with transparent parts.FIrst iteration, solid, 2nd transparent
+
         for (trans = 0; trans < 2; trans++)
         {
             glPushMatrix();
@@ -335,11 +325,13 @@ void display()
             glPopMatrix();
 
             glPushMatrix();
+            glTranslated(0, -.1, 0);
             Building(building);
             glPopMatrix();
+
+            bounceBall();
         }
 
-        // glPopMatrix();
         ErrCheck("display4");
     }
 
@@ -348,6 +340,7 @@ void display()
     //building
     if (obj == 1)
     {
+        mode = 1;
         trans = 0;
         Building(building);
         trans = 1;
@@ -356,26 +349,40 @@ void display()
 
     if (obj == 2) //cupboard
     {
+        mode = 1;
         trans = 0;
         Cupboard(cupboard);
     }
 
     if (obj == 3) // chair
     {
+        mode = 1;
         trans = 0;
+        glPushMatrix();
+        glTranslated(30, 3.2, -60);
+        glScaled(2, 2, 2);
         Chair(chair_specs);
+        glPopMatrix();
     }
 
     if (obj == 4) //table
     {
+        mode = 1;
+        glPushMatrix();
+        glTranslated(30, 3.2, -60);
+        glScaled(2, 2, 2);
         trans = 0;
         Table(table);
         trans = 1;
         Table(table);
+        glPopMatrix();
     }
 
     if (obj == 5) //potted plant
     {
+
+        mode = 1;
+
         trans = 0;
         glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
         Plant(pl);
@@ -384,42 +391,27 @@ void display()
 
     if (obj == 6) //Table lamp
     {
+        mode = 1;
 
+        glPushMatrix();
+        glRotated(90, 0, 1, 0);
         Lamp(lamp);
+        glPopMatrix();
     }
 
     if (obj == 7) //potrait //text
     {
-#ifdef PARTICLE
+        mode = 1;
 
-        //emissive sphere
-        color_t col = {1, 0, 0, 1};
-        material_t mat = {4, {0, 0, 0, 1}, {1, 0, 0, 1}};
-        ball(p[0], p[1], p[2], rad, col, mat);
-        material_t stdmat = {shiny, WHITE, BLACK};
-        col = (color_t){1, 1, 1, .2};
-        //box
-        glBindTexture(GL_TEXTURE_2D, texture[17]);
-        ENABLE_TRANSPARENCY
-        glPushMatrix();
-        glTranslated(0, 0, 0);
-        glRotated(0, 0, 0, 0);
-        glScaled(le, br, he);
-
-        cube((cube_t){2, 0, 0, 0, 1, 1, 1, 0, 0, {col, col, col, col, col, col}, stdmat});
-
-        glPopMatrix();
-        glDisable(GL_BLEND);
-        glDepthMask(1);
-#endif
+        for (trans = 0; trans <= 2; trans++)
+        {
+            bounceBall();
+        }
     }
 
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
     ErrCheck("display5");
-
-    //particle system
-    //night mode
 
     //  Switch off textures so it doesn't apply to the axis
 
@@ -458,8 +450,7 @@ void display()
 
     if (1)
     {
-        glWindowPos2i(5, 65);
-        Print("x,y,z=%.2f,%.2f,%.2f", unorm[0], unorm[1], unorm[2]);
+        glColor3f(1.0, 1.0, 1.0);
         glWindowPos2i(5, 45);
         Print("LocalViewer=%d Distance=%.2f Azimuth=%d, Elevation=%d rep =%.2f", local, distance, rot, roty, rep);
         glWindowPos2i(5, 25);
@@ -469,13 +460,11 @@ void display()
     glFlush();
     glutSwapBuffers();
 
-    ErrCheck("display");
     ErrCheck("displayF");
 }
 
 void Print(const char *format, ...)
 {
-    glColor3f(1, 1, 1);
     char buf[LEN];
     char *ch = buf;
     va_list args;
@@ -483,6 +472,8 @@ void Print(const char *format, ...)
     va_start(args, format);
     vsnprintf(buf, LEN, format, args);
     va_end(args);
+    glColor3f(1, 1, 1);
+
     //  Display the characters one at a time at the current raster position
     while (*ch)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *ch++);

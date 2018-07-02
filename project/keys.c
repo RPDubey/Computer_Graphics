@@ -1,10 +1,10 @@
 /*
 *@Filename: keys.c
 *@brief:Implements key,project, special and reshape functions
-*certain modifications and additions have been made to professor Schreuder's example 6
+*certain modifications and additions have been made to professor Schreuder's example 
 *for this code
 *@author:Ravi Prakash Dubey
-*@date:06/10/2018
+*@date:06/28/2018
 */
 
 #include "keys.h"
@@ -17,35 +17,35 @@
 #include <GL/glut.h>
 
 //  Globals
-int th = 25;  // Azimuth of view angle
-int ph = 45;  // Elevation of view angle
-int axes = 1; //determines axes options
+extern int th;   // Azimuth of view angle
+extern int ph;   // Elevation of view angle
+extern int axes; //determines axes options
 
-double dim = DIM; // Dimensions of orthogonal box
-double asp = 1;   //aspect ration
-int fov = FOV;    //  Field of view (for perspective)
-int mode = 1;     //orthogonal,perspective,first person
-int obj = 7;      //object to be displayed
+extern double dim; // Dimensions of orthogonal box
+extern double asp; //aspect ration
+extern int fov;    //  Field of view (for perspective)
+extern int mode;   //orthogonal,perspective,first person
+extern int obj;    //object to be displayed
 
 //light related
-int light = 1; //light source on/off
-int rot = 90;
-int roty = 40;
-int move = 1;
+extern int light; //light source on/off
+extern int rot;
+extern int roty;
+extern int move;
 
-int emission = 0;  // Emission intensity (%)
-int ambient = 20;  // Ambient intensity (%)
-int diffuse = 100; // Diffuse intensity (%)
-int specular = 75; // Specular intensity (%)
-int shininess = 3; // Shininess (power of two)
-float shiny = 8;   // Shininess (value)
-float rep = 1;
+extern int emission;  // Emission intensity (%)
+extern int ambient;   // Ambient intensity (%)
+extern int diffuse;   // Diffuse intensity (%)
+extern int specular;  // Specular intensity (%)
+extern int shininess; // Shininess (power of two)
+extern float shiny;   // Shininess (value)
+extern float rep;
 extern double distance;
 
 //coordinated for first person perspective
-double dx = 0;
-double dy = 0;
-double dz = 0;
+extern double dx;
+extern double dy;
+extern double dz;
 extern double Ex1;
 extern double Ey1;
 extern double Ez1;
@@ -53,224 +53,105 @@ extern double Cx;
 extern double Cy;
 extern double Cz;
 
-int zratio = 4;
+extern int zratio;
 
 extern double a;
 extern double r;
 extern room_dim_t room;
-float sco = 20;
+extern float sco;
 
-#ifdef PARTICLE
 extern double p[3];
-
 extern double thyx;
 extern double thxz;
-// extern double delx;
-// extern double dely;
-// extern double delz;
-double del = 0.5;
+extern double del;
 extern double le;
 extern double br;
 extern double he;
-double temp_p[3];
+extern double temp_p[3];
 extern double rad;
-volatile double unorm[3];
+extern volatile double unorm[3];
+extern double box_pos[3];
 
-#endif
+/*
+*Resets Parameters to default
+*/
+void Reset(void)
+{
+    th = ph = 0;
+    dim = DIM;
+    fov = FOV;
+    rot = 90;
+    roty = 40;
 
+    Ex1 = 0;
+    Ey1 = 20;
+    Ez1 = 65;
+
+    Cx = 0;
+    Cy = 20;
+    Cz = Ez1 - 1;
+
+    mode = 2;
+
+    thyx = 60;
+    thxz = 70;
+    unorm[0] = COS(thyx) * SIN(thxz);
+    unorm[1] = SIN(thyx);
+    unorm[2] = COS(thyx) * COS(thxz);
+    light = 1;
+
+    box_pos[0] = p[0] = XPOS;
+    box_pos[1] = p[1] = YPOS;
+    box_pos[2] = p[2] = ZPOS;
+    le = br = he = 10;
+    rad = 1;
+}
+
+/*
+*Checks for colission and updates normals
+*/
 int ifcolission(double pos[3])
 {
+    double norm[3] = {0, 0, 0};
 
-    if (pos[0] <= -le + rad)
-    {
-        double i[3] =
-            {
-                (pos[0] - temp_p[0]),
-                (pos[1] - temp_p[1]),
-                (pos[2] - temp_p[2]),
-            };
-        double mag = pow((i[0] * i[0] + i[1] * i[1] + i[2] * i[2]), 0.5);
-        i[0] /= mag;
-        i[1] /= mag;
-        i[2] /= mag;
+    if (pos[0] <= -le + box_pos[0] + rad)
+        norm[0] = 1;
+    else if (pos[0] >= le + box_pos[0] - rad)
+        norm[0] = -1;
+    else if (pos[2] >= br + box_pos[2] - rad)
+        norm[2] = -1;
+    else if (pos[2] <= -br + box_pos[2] + rad)
+        norm[2] = 1;
+    else if (pos[1] >= he + box_pos[1] - rad)
+        norm[1] = -1;
+    else if (pos[1] <= -he + box_pos[1] + rad)
+        norm[1] = 1;
+    else
+        return 0;
 
-        double norm[3] = {1, 0, 0};
-        double dot = norm[0] * i[0] + norm[1] * i[1] + norm[2] * i[2];
-        double r[3];
-        for (int j = 0; j < 3; j++)
+    double i[3] =
         {
-            r[j] = i[j] - 2 * dot * norm[j];
-        }
-        mag = pow((r[0] * r[0] + r[1] * r[1] + r[2] * r[2]), 0.5);
-        r[0] /= mag;
-        r[1] /= mag;
-        r[2] /= mag;
-        unorm[0] = r[0];
-        unorm[1] = r[1];
-        unorm[2] = r[2];
-        return 1;
-    }
-    if (pos[2] >= br - rad)
+            (pos[0] - temp_p[0]),
+            (pos[1] - temp_p[1]),
+            (pos[2] - temp_p[2]),
+        };
+    double mag = pow((i[0] * i[0] + i[1] * i[1] + i[2] * i[2]), 0.5);
+    i[0] /= mag;
+    i[1] /= mag;
+    i[2] /= mag;
+
+    double dot = norm[0] * i[0] + norm[1] * i[1] + norm[2] * i[2];
+    double r[3];
+    for (int j = 0; j < 3; j++)
     {
-        double i[3] =
-            {
-                (pos[0] - temp_p[0]),
-                (pos[1] - temp_p[1]),
-                (pos[2] - temp_p[2]),
-            };
-        double mag = pow((i[0] * i[0] + i[1] * i[1] + i[2] * i[2]), 0.5);
-        i[0] /= mag;
-        i[1] /= mag;
-        i[2] /= mag;
-
-        double norm[3] = {0, 0, -1};
-        double dot = norm[0] * i[0] + norm[1] * i[1] + norm[2] * i[2];
-        double r[3];
-        for (int j = 0; j < 3; j++)
-        {
-            r[j] = i[j] - 2 * dot * norm[j];
-        }
-        mag = pow((r[0] * r[0] + r[1] * r[1] + r[2] * r[2]), 0.5);
-        r[0] /= mag;
-        r[1] /= mag;
-        r[2] /= mag;
-        unorm[0] = r[0];
-        unorm[1] = r[1];
-        unorm[2] = r[2];
-
-        return 1;
+        r[j] = i[j] - 2 * dot * norm[j];
     }
+    mag = pow((r[0] * r[0] + r[1] * r[1] + r[2] * r[2]), 0.5);
+    unorm[0] = r[0] / mag;
+    unorm[1] = r[1] / mag;
+    unorm[2] = r[2] / mag;
 
-    if (pos[0] >= le - rad)
-    {
-        // thyx = 180 - thyx;
-        // thxz = -thxz;
-        double i[3] =
-            {
-                (pos[0] - temp_p[0]),
-                (pos[1] - temp_p[1]),
-                (pos[2] - temp_p[2]),
-            };
-        double mag = pow((i[0] * i[0] + i[1] * i[1] + i[2] * i[2]), 0.5);
-        i[0] /= mag;
-        i[1] /= mag;
-        i[2] /= mag;
-
-        double norm[3] = {-1, 0, 0};
-        double dot = norm[0] * i[0] + norm[1] * i[1] + norm[2] * i[2];
-        double r[3];
-        for (int j = 0; j < 3; j++)
-        {
-            r[j] = i[j] - 2 * dot * norm[j];
-        }
-        mag = pow((r[0] * r[0] + r[1] * r[1] + r[2] * r[2]), 0.5);
-        r[0] /= mag;
-        r[1] /= mag;
-        r[2] /= mag;
-        unorm[0] = r[0];
-        unorm[1] = r[1];
-        unorm[2] = r[2];
-
-        return 1;
-    }
-
-    if (pos[2] <= -br + rad)
-    {
-        double i[3] =
-            {
-                (pos[0] - temp_p[0]),
-                (pos[1] - temp_p[1]),
-                (pos[2] - temp_p[2]),
-            };
-        double mag = pow((i[0] * i[0] + i[1] * i[1] + i[2] * i[2]), 0.5);
-        i[0] /= mag;
-        i[1] /= mag;
-        i[2] /= mag;
-
-        double norm[3] = {0, 0, 1};
-        double dot = norm[0] * i[0] + norm[1] * i[1] + norm[2] * i[2];
-        double r[3];
-        for (int j = 0; j < 3; j++)
-        {
-            r[j] = i[j] - 2 * dot * norm[j];
-        }
-        mag = pow((r[0] * r[0] + r[1] * r[1] + r[2] * r[2]), 0.5);
-        r[0] /= mag;
-        r[1] /= mag;
-        r[2] /= mag;
-
-        unorm[0] = r[0];
-        unorm[1] = r[1];
-        unorm[2] = r[2];
-
-        return 1;
-    }
-
-    if (pos[1] >= he - rad)
-
-    {
-        double i[3] =
-            {
-                (pos[0] - temp_p[0]),
-                (pos[1] - temp_p[1]),
-                (pos[2] - temp_p[2]),
-            };
-        double mag = pow((i[0] * i[0] + i[1] * i[1] + i[2] * i[2]), 0.5);
-        i[0] /= mag;
-        i[1] /= mag;
-        i[2] /= mag;
-
-        double norm[3] = {0, -1, 0};
-        double dot = norm[0] * i[0] + norm[1] * i[1] + norm[2] * i[2];
-        double r[3];
-        for (int j = 0; j < 3; j++)
-        {
-            r[j] = i[j] - 2 * dot * norm[j];
-        }
-        mag = pow((r[0] * r[0] + r[1] * r[1] + r[2] * r[2]), 0.5);
-        r[0] /= mag;
-        r[1] /= mag;
-        r[2] /= mag;
-        unorm[0] = r[0];
-        unorm[1] = r[1];
-        unorm[2] = r[2];
-
-        return 1;
-    }
-
-    if (pos[1] <= -he + rad)
-
-    {
-        double i[3] =
-            {
-                (pos[0] - temp_p[0]),
-                (pos[1] - temp_p[1]),
-                (pos[2] - temp_p[2]),
-            };
-        double mag = pow((i[0] * i[0] + i[1] * i[1] + i[2] * i[2]), 0.5);
-        i[0] /= mag;
-        i[1] /= mag;
-        i[2] /= mag;
-
-        double norm[3] = {0, 1, 0};
-        double dot = norm[0] * i[0] + norm[1] * i[1] + norm[2] * i[2];
-        double r[3];
-        for (int j = 0; j < 3; j++)
-        {
-            r[j] = i[j] - 2 * dot * norm[j];
-        }
-        mag = pow((r[0] * r[0] + r[1] * r[1] + r[2] * r[2]), 0.5);
-        r[0] /= mag;
-        r[1] /= mag;
-        r[2] /= mag;
-
-        unorm[0] = r[0];
-        unorm[1] = r[1];
-        unorm[2] = r[2];
-
-        return 1;
-    }
-    return 0;
+    return 1;
 }
 
 /*
@@ -282,8 +163,7 @@ void idle()
     double t = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
     rot = fmod(45 * t, 360.0);
 
-#ifdef PARTICLE
-
+    //update the bounce ball position
     temp_p[0] = p[0];
     temp_p[1] = p[1];
     temp_p[2] = p[2];
@@ -295,16 +175,11 @@ void idle()
     if (ifcolission(p))
     {
 
-        // p[0] = temp_p[0];
-        // p[1] = temp_p[1];
-        // p[2] = temp_p[2];
-
         p[0] += 1 * del * unorm[0];
         p[1] += 1 * del * unorm[1];
         p[2] += 1 * del * unorm[2];
     }
 
-#endif
     //  Tell GLUT it is necessary to redisplay the scene
     glutPostRedisplay();
     ErrCheck("idle");
@@ -334,9 +209,6 @@ void Project()
     ErrCheck("Project");
 }
 
-// void changeview()
-// {
-// }
 /*
  *  GLUT calls this routine when a key is pressed
  */
@@ -350,17 +222,7 @@ void key(unsigned char ch, int x, int y)
     //  Reset to default
     else if (ch == '0')
     {
-        th = ph = 0;
-        dim = DIM;
-        fov = FOV;
-        Ex1 = 0;
-        Ey1 = 0;
-        Ez1 = DIM;
-        Cx = 0;
-        Cy = 0;
-        Cz = DIM - 1;
-        rot = 90;
-        roty = 10;
+        Reset();
     }
     else if (ch == '{' && sco > 5)
         sco = sco == 180 ? 90 : sco - 5;
@@ -449,10 +311,30 @@ void key(unsigned char ch, int x, int y)
         axes = 1 - axes; //axes on/off
 
     else if (ch == 'n')
+    {
         obj = (obj + 1) % (NUMBER_OF_OBJET + 1); // object to be displayed
+
+        if (obj == 7)
+        {
+            box_pos[0] = p[0] = 0;
+            box_pos[1] = p[1] = 0;
+            box_pos[2] = p[2] = 0;
+            le = br = he = 30;
+            rad = 2;
+        }
+        else if (obj == 0)
+            Reset();
+    }
+
 #ifdef PERSPECTIVE
     else if (ch == 'x')
+    {
         mode = (mode + 1) % 3;
+#ifndef ORTHOGONAL
+        mode = mode == 0 ? 1 : mode;
+#endif
+    }
+
 #endif
     else if (ch == 'c')
     {

@@ -2,7 +2,7 @@
 *@Filename: keys.h
 *@brief:declaration for functions in keys.c
 *@author:Ravi Prakash Dubey
-*@date:06/10/2018
+*@date:06/28/2018
 */
 
 #ifndef KEYS_H
@@ -27,4 +27,10 @@ void special(int key, int x, int y);
  *  GLUT calls this routine when idle
  */
 void idle(void);
+
+/*
+ *  Reset Parameters to default
+ */
+void idle(void);
+
 #endif

@@ -4,7 +4,7 @@
 *certain modifications and additions have been made to professor Schreuder's examples
 *for this code
 *@author:Ravi Prakash Dubey
-*@date:06/16/2018
+*@date:06/29/2018
 */
 
 #include "objects.h"
@@ -20,6 +20,49 @@ extern unsigned int texture[NUMBER_OF_TEXTURE]; //  Texture names
 extern float rep;
 extern double dim;
 extern int trans;
+
+extern double p[3];
+
+extern double thyx;
+extern double thxz;
+extern double unorm[3];
+
+extern double le;
+extern double br;
+extern double he;
+extern double rad;
+extern double box_pos[3]; //transparent box position
+
+/*
+*subtracts coordinates to find vectors
+*/
+void rowsub(double v1[3], double v2[3], double *v3)
+{
+    *v3 = (v1[0] - v2[0]);
+    *(v3 + 1) = (v1[1] - v2[1]);
+    *(v3 + 2) = (v1[2] - v2[2]);
+}
+/*
+*given 3 points, finds unit normal to the surface
+*/
+void unitNorm(double vp[3], double vm[3], double vn[3], double *n1)
+{
+
+    double v1[3] = {0, 0, 0};
+    double v2[3] = {0, 0, 0};
+    rowsub(vm, vn, v1);
+    rowsub(vm, vp, v2);
+
+    double len1 = pow((v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2]), 0.5);
+    double len2 = len1 * pow((v2[0] * v2[0] + v2[1] * v2[1] + v2[2] * v2[2]), 0.5);
+
+    *n1 = (v1[1] * v2[2] - v1[2] * v2[1]) / len2;
+    *(n1 + 1) = (v1[2] * v2[0] - v1[0] * v2[2]) / len2;
+    *(n1 + 2) = (v1[0] * v2[1] - v1[1] * v2[0]) / len2;
+}
+/*
+*Draws chair object
+*/
 void Chair(chair_t chair)
 {
 
@@ -62,287 +105,9 @@ void Chair(chair_t chair)
     }
 }
 
-void LetterBlock(int element)
-{
-
-    double ratio = .6;
-    double ang = 90 - (180.0 / 3.1415927) * atan(2 / (1 - ratio));
-    float spec[4] = {1, 1, 1, 1};
-    float emis[4] = {0, 0, 0, 1};
-
-    glPushMatrix();
-    if (element == 0)
-    {
-
-        glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shiny);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emis);
-
-        glColor3f(1, 1, 1);
-        glPushMatrix();
-        glTranslatef(0, 2, 0);
-
-        glBegin(GL_QUADS);
-        //  Front - counter c w
-        // glColor3f(cube.cube_col.front.r, cube.cube_col.front.g, cube.cube_col.front.b);
-        glNormal3f(0, SIN(ang), COS(ang));
-        glTexCoord2f(0.0, 0.0);
-        glVertex3f(-1, -1, 1);
-        glTexCoord2f(rep, 0.0);
-        glVertex3f(+1, -1, 1);
-        glTexCoord2f(rep, rep);
-        glVertex3f(+1, +1, ratio);
-        glTexCoord2f(0.0, rep);
-        glVertex3f(-1, +1, ratio);
-
-        //  Back - counter clock wise
-        // glColor3f(cube.cube_col.back.r, cube.cube_col.back.g, cube.cube_col.back.b);
-        glNormal3f(0, SIN(ang), -COS(ang));
-        glTexCoord2f(0.0, 0.0);
-        glVertex3f(-1, -1, -1);
-        glTexCoord2f(rep, 0.0);
-        glVertex3f(+1, -1, -1);
-        glTexCoord2f(rep, rep);
-        glVertex3f(+1, +1, -ratio);
-        glTexCoord2f(0.0, rep);
-        glVertex3f(-1, +1, -ratio);
-
-        //  Right
-        // glColor3f(cube.cube_col.right.r, cube.cube_col.right.g, cube.cube_col.right.b);
-        glNormal3f(COS(ang), SIN(ang), 0);
-        glTexCoord2f(0.0, 0.0);
-        glVertex3f(+1, -1, +1);
-        glTexCoord2f(rep, 0.0);
-        glVertex3f(+1, -1, -1);
-        glTexCoord2f(rep, rep);
-        glVertex3f(+1, +1, -ratio);
-        glTexCoord2f(0.0, rep);
-        glVertex3f(+1, +1, +ratio);
-
-        //  Left
-        // glColor3f(cube.cube_col.left.r, cube.cube_col.left.g, cube.cube_col.left.b);
-        glNormal3f(-COS(ang), SIN(ang), 0);
-        glTexCoord2f(0.0, 0.0);
-        glVertex3f(-1, -1, +1);
-        glTexCoord2f(rep, 0.0);
-        glVertex3f(-1, -1, -1);
-        glTexCoord2f(rep, rep);
-        glVertex3f(-1, +1, -ratio);
-        glTexCoord2f(0.0, rep);
-        glVertex3f(-1, +1, +ratio);
-
-        //  Top
-        // glColor3f(cube.cube_col.top.r, cube.cube_col.top.g, cube.cube_col.top.b);
-        glNormal3f(0, +1, 0);
-        glTexCoord2f(0.0, 0.0);
-        glVertex3f(-1, +1, ratio);
-        glTexCoord2f(rep, 0.0);
-        glVertex3f(1, +1, ratio);
-        glTexCoord2f(rep, rep);
-        glVertex3f(+1, +1, -ratio);
-        glTexCoord2f(0.0, rep);
-        glVertex3f(-1, +1, -ratio);
-
-        //  Bottom
-        //  Counter clockwise
-        // glColor3f(cube.cube_col.top.r, cube.cube_col.top.g, cube.cube_col.top.b);
-        glNormal3f(0, -1, 0);
-        glTexCoord2f(0.0, 0.0);
-        glVertex3f(-1, -1, +1);
-        glTexCoord2f(rep, 0.0);
-        glVertex3f(+1, -1, +1);
-        glTexCoord2f(rep, rep);
-        glVertex3f(+1, -1, -1);
-        glTexCoord2f(0.0, rep);
-        glVertex3f(-1, -1, -1);
-
-        glEnd();
-    }
-    else if (element == 1)
-    {
-
-        glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shiny);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emis);
-        glColor3f(1, 1, 1);
-
-        glPushMatrix();
-        glScaled(.5, .5, .5);
-
-        glBegin(GL_QUADS);
-
-        //  Bottom
-        glNormal3f(0, -1, 0);
-        glTexCoord2f(0.0, 0.0);
-        glVertex3f(-2, -1, 1);
-        glTexCoord2f(rep, rep);
-        glVertex3f(0, -1, -1);
-        glTexCoord2f(rep, 0.0);
-        glVertex3f(0, -1, 1);
-        glTexCoord2f(0.0, rep);
-        glVertex3f(-2, -1, 1);
-
-        //  Top
-        glNormal3f(0, +1, 0);
-        glTexCoord2f(0.0, 0.0);
-        glVertex3f(ratio - 1, +1, 1);
-        glTexCoord2f(rep, 0.0);
-        glVertex3f(0, +1, ratio);
-        glTexCoord2f(rep, rep);
-        glVertex3f(0, +1, -ratio);
-        glTexCoord2f(0.0, rep);
-        glVertex3f(-ratio - 1, +1, 1);
-
-        //  Front - counter c w
-        glNormal3f(0, 0, 1);
-        glTexCoord2f(0.0, 0.0);
-        glVertex3f(-2, -1, 1);
-        glTexCoord2f(rep, 0.0);
-        glVertex3f(0, -1, 1);
-        glTexCoord2f(rep, rep);
-        glVertex3f(ratio - 1, 1, 1);
-        glTexCoord2f(0.0, rep);
-        glVertex3f(-ratio - 1, +1, 1);
-
-        //  Back - counter clock wise
-        glNormal3f(1, 0, 0);
-        glTexCoord2f(0.0, 0.0);
-        glVertex3f(0, -1, 1);
-        glTexCoord2f(rep, 0.0);
-        glVertex3f(0, -1, -1);
-        glTexCoord2f(rep, rep);
-        glVertex3f(0, +1, -ratio);
-        glTexCoord2f(0.0, rep);
-        glVertex3f(0, +1, ratio);
-
-        //  RIGHT
-        glNormal3f(COS(ang) * SIN(45), SIN(ang), COS(ang) * COS(45));
-        glTexCoord2f(0.0, 0.0);
-        glVertex3f(ratio - 1, 1, 1);
-        glTexCoord2f(rep, 0.0);
-        glVertex3f(0, -1, 1);
-        glTexCoord2f(rep, rep);
-        glVertex3f(0, +1, ratio);
-        glTexCoord2f(0.0, rep);
-        glVertex3f(ratio - 1, +1, 1);
-
-        //  Left
-        glNormal3f(-COS(ang) * SIN(45), SIN(ang), -COS(ang) * COS(45));
-        glTexCoord2f(0.0, 0.0);
-        glVertex3f(0, 1, -ratio);
-        glTexCoord2f(rep, 0.0);
-        glVertex3f(0, -1, -1);
-        glTexCoord2f(rep, rep);
-        glVertex3f(-2, -1, 1);
-        glTexCoord2f(0.0, rep);
-        glVertex3f(-1 - ratio, +1, 1);
-        glPopMatrix();
-        glEnd();
-    }
-    glPopMatrix();
-}
-
-void Logo(void)
-{
-    glBindTexture(GL_TEXTURE_2D, texture[2]);
-
-    glPushMatrix();
-
-    glPushMatrix();
-    glScaled(.5 * 4, .25, .5);
-    glTranslated(1, 0, 0);
-    LetterBlock((int)0);
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslated(0, .5, 0);
-    glScaled(1, .5, 1);
-    LetterBlock((int)1);
-    glPopMatrix();
-
-    glPushMatrix();
-    glScaled(.5 * 4, .25, .5);
-    glTranslated(1, 0, 10);
-    LetterBlock((int)0);
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslated(-.5, 0, 2.5);
-    glRotated(90, 0, 1, 0);
-    glScaled(.5 * 4, .25, .5);
-    LetterBlock((int)0);
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslated(-.5, .5, 4.5);
-    glRotated(90, 0, 1, 0);
-    glScaled(1, .5, 1);
-    LetterBlock((int)1);
-    glPopMatrix();
-
-    glPopMatrix();
-    /***************************************/
-    glPushMatrix();
-    glTranslated(2, 0, 2);
-
-    glPushMatrix();
-    glTranslated(-.5, 0, 2);
-    glRotated(90, 0, 1, 0);
-    glScaled(.5 * 5, .25, .5);
-    LetterBlock((int)0);
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslated(-.5, .5, 4.5);
-    glRotated(90, 0, 1, 0);
-    glScaled(1, .5, 1);
-    LetterBlock((int)1);
-    glPopMatrix();
-
-    glPushMatrix();
-    glScaled(.5 * 4, .25, .5);
-    glTranslated(1, 0, 10);
-    LetterBlock((int)0);
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslated(4, .5, 5);
-    glRotated(180, 0, 1, 0);
-    glScaled(1, .5, 1);
-    LetterBlock((int)1);
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslated(4.5, 0, 2);
-    glRotated(90, 0, 1, 0);
-    glScaled(.5 * 5, .25, .5);
-    LetterBlock((int)0);
-    glPopMatrix();
-
-    glPopMatrix();
-}
-void rowsub(double v1[3], double v2[3], double *v3)
-{
-    *v3 = (v1[0] - v2[0]);
-    *(v3 + 1) = (v1[1] - v2[1]);
-    *(v3 + 2) = (v1[2] - v2[2]);
-}
-void unitNorm(double vp[3], double vm[3], double vn[3], double *n1)
-{
-
-    double v1[3] = {0, 0, 0};
-    double v2[3] = {0, 0, 0};
-    rowsub(vm, vn, v1);
-    rowsub(vm, vp, v2);
-
-    double len1 = pow((v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2]), 0.5);
-    double len2 = len1 * pow((v2[0] * v2[0] + v2[1] * v2[1] + v2[2] * v2[2]), 0.5);
-
-    *n1 = (v1[1] * v2[2] - v1[2] * v2[1]) / len2;
-    *(n1 + 1) = (v1[2] * v2[0] - v1[0] * v2[2]) / len2;
-    *(n1 + 2) = (v1[0] * v2[1] - v1[1] * v2[0]) / len2;
-}
-
+/*
+*Draws Leaf Object
+*/
 #define STEP (double)2
 void Leaf(double r, double depth)
 {
@@ -387,8 +152,8 @@ void Leaf(double r, double depth)
         normr[i][2] /= val;
     }
 
-    //Coordinates for leaf taken from //http://www.cs.northwestern.edu/~ago820/cs351/proj2.html
-
+    //X and YCoordinates for leaf taken from //http://www.cs.northwestern.edu/~ago820/cs351/proj2.html
+    //have generated z my self for twists and curves in leaf
     glColor3f(1, 1, 1);
     glBegin(GL_QUAD_STRIP);
 
@@ -422,6 +187,10 @@ void Leaf(double r, double depth)
 
     glPopMatrix();
 }
+
+/*
+*Draws Potted Plant Object
+*/
 
 void Plant(plant_t pl)
 {
@@ -471,6 +240,10 @@ void Plant(plant_t pl)
     glPopMatrix();
 }
 
+/*
+*Draws Potrait Object
+*/
+
 void Potrait(int num, int tex)
 {
     glBindTexture(GL_TEXTURE_2D, texture[tex]);
@@ -480,11 +253,9 @@ void Potrait(int num, int tex)
 
     setMatPr(spec, emis, shiny);
 
-    // int num = 100;          //number of quads
     double mul = 2.0 / num; /// num;
     double mul1 = 1.0 / num;
     glPushMatrix();
-    // glTranslated(-50, -50, 0);
     glScaled(10, 10, 1);
     glColor3f(1.0, 1.0, 1.0);
     glNormal3f(0, 0, 1);
@@ -513,6 +284,10 @@ void Potrait(int num, int tex)
     unitcube(stdmat);
     glPopMatrix();
 }
+
+/*
+*Draws a Quad with the defined properties
+*/
 
 void Quad(quadr_t prop)
 {
@@ -554,6 +329,10 @@ void Quad(quadr_t prop)
 
     glPopMatrix();
 }
+
+/*
+*Draws a Curved Solid with rectangular CS 
+*/
 
 void Curve(curve_t prop)
 {
@@ -650,6 +429,10 @@ void Curve(curve_t prop)
     glPopMatrix();
 }
 
+/*
+*Draws a Cupboard object
+*/
+
 void Cupboard(cbd_t c)
 {
     if (trans == 0)
@@ -677,9 +460,14 @@ void Cupboard(cbd_t c)
     }
 }
 
+/*
+*Draws a Table object
+*/
+
 void Table(table_t table)
 {
     material_t stdmat = {shiny, WHITE, BLACK};
+    glPushMatrix();
 
     if (trans == 0)
     {
@@ -705,7 +493,13 @@ void Table(table_t table)
         glDisable(GL_BLEND);
         glDepthMask(1);
     }
+
+    glPopMatrix();
 }
+
+/*
+*Draws the building object
+*/
 
 void Building(quadr_t *building)
 {
@@ -738,6 +532,9 @@ void Building(quadr_t *building)
     glPopMatrix();
 }
 
+/*
+*Draws Lamp Object
+*/
 void Lamp(lamp_t lamp)
 {
     material_t stdmat = {shiny, WHITE, BLACK};
@@ -782,6 +579,10 @@ void Lamp(lamp_t lamp)
     }
 }
 
+/*
+*Draws a Door Object
+*/
+
 void Door(door_t door)
 {
     material_t stdmat = {shiny, WHITE, BLACK};
@@ -799,4 +600,38 @@ void Door(door_t door)
     unitcube(stdmat);
     glPopMatrix();
     glBindTexture(GL_TEXTURE_2D, texture[20]);
+}
+
+/*
+*Draws a BOunce ball enclosed in glass cube
+*/
+void bounceBall()
+{
+    color_t col = {1, 0, 0, 1};
+    material_t stdmat = {shiny, WHITE, BLACK};
+
+    if (trans == 0)
+    {
+        //emissive sphere
+        material_t mat = {4, {0, 0, 0, 1}, {1, 0, 0, 1}};
+        ball(p[0], p[1], p[2], rad, col, mat);
+        col = (color_t){1, 1, 1, .2};
+        //box
+    }
+    if (trans == 1)
+    {
+        glBindTexture(GL_TEXTURE_2D, texture[17]);
+
+        ENABLE_TRANSPARENCY
+
+        glPushMatrix();
+        glTranslated(box_pos[0], box_pos[1], box_pos[2]);
+        glRotated(0, 0, 0, 0);
+        glScaled(le, br, he);
+        cube((cube_t){2, 0, 0, 0, 1, 1, 1, 0, 0, {col, col, col, col, col, col}, stdmat});
+        glPopMatrix();
+
+        glDisable(GL_BLEND);
+        glDepthMask(1);
+    }
 }

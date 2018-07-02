@@ -1,10 +1,10 @@
 /*
-*@Filename: hw2.h
-*@brief:contains structure declaration for objects
+*@Filename: final.h
+*@brief:contains data describing objects 
 *certain modifications and additions have been made to professor Schreuder's examples
 *for this code
 *@author:Ravi Prakash Dubey
-*@date:06/16/2018
+*@date:06/28/2018
 */
 
 #ifndef HW2_H
