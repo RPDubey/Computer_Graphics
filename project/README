@@ -9,7 +9,7 @@ Load/create  some  more objects
 Stretch Goal:
 a Basic collision detection and avoidance for first person
 
-For this scene only orthogonal mode is not supported
+For this scene,  orthogonal mode is not supported
 
 to build the binary
 1)make clean
@@ -34,6 +34,12 @@ Key bindings
   'w,s,a,d' for Move ahead/Move back/rotate L/rotate R in first mode person only
 
   '0'   Reset to default values
+
+  'r' toggle obstacle detection on/off (only in full scene)
+  
+  't' toggle fog on/off(only in full scene)
+
+  'e' toggle fence view on/off
 
 Light Controls
 

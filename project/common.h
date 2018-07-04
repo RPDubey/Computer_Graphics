@@ -17,20 +17,24 @@
 #define XPOS -60
 #define YPOS 10
 #define ZPOS 40
+#define BOX_LE 10
+#define BOX_BR 10
+#define BOX_HE 10
 
 #define PERSPECTIVE
 // #define PRODUCTION
+#define ORTHOGONAL
 #define PARTICLE
 
 #define WSTEP (1.0)
 #define FOV (55)
 #define DIM (100)
-#define NUMBER_OF_OBJET (7)
+#define NUMBER_OF_OBJET (8)
 #define NUMBER_OF_TEXTURE (30)
 #define LENGTH 0.75 * DIM
 #define BREATH 0.75 * DIM
 #define HEIGHT 0.5 * DIM
-
+#define FENCE_HEIGHT (10)
 #define ENABLE_TRANSPARENCY                \
     {                                      \
         glEnable(GL_BLEND);                \
@@ -44,7 +48,67 @@
         glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emis);  \
         glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shiny); \
     }
+extern int fence_view;
+/*
+// #define DRAW_FENCE(l, b, xof, zof)                                        \
+//     {                                                                     \
+//         glDisable(GL_DEPTH_TEST);                                         \
+//         glDisable(GL_TEXTURE_2D);                                         \
+//         glDisable(GL_LIGHTING);                                           \
+//         glColor3f(1.0, 1.0, 1.0);                                         \
+//         glBegin(GL_LINE_STRIP);                                           \
+//         glVertex3d((double)(-l + xof), FENCE_HEIGHT, (double)(b + zof));  \
+//         glVertex3d((double)(l + xof), FENCE_HEIGHT, (double)(b + zof));   \
+//         glVertex3d((double)(l + xof), FENCE_HEIGHT, (double)(-b + zof));  \
+//         glVertex3d((double)(-l + xof), FENCE_HEIGHT, (double)(-b + zof)); \
+//         glVertex3d((double)(-l + xof), FENCE_HEIGHT, (double)(b + zof));  \
+//         glEnd();                                                          \
+//         glEnable(GL_DEPTH_TEST);                                          \
+//         glEnable(GL_TEXTURE_2D);                                          \
+//         glEnable(GL_LIGHTING);                                            \
+//     }
 
+*/
+
+#define DRAW_FENCE(l, b, xof, zof)                                            \
+    if (fence_view == 1)                                                      \
+    {                                                                         \
+        {                                                                     \
+            glDisable(GL_DEPTH_TEST);                                         \
+            glDisable(GL_TEXTURE_2D);                                         \
+            glDisable(GL_LIGHTING);                                           \
+            glColor3f(1.0, 1.0, 1.0);                                         \
+            glBegin(GL_LINE_STRIP);                                           \
+            glVertex3d((double)(-l + xof), FENCE_HEIGHT, (double)(b + zof));  \
+            glVertex3d((double)(l + xof), FENCE_HEIGHT, (double)(b + zof));   \
+            glVertex3d((double)(l + xof), FENCE_HEIGHT, (double)(-b + zof));  \
+            glVertex3d((double)(-l + xof), FENCE_HEIGHT, (double)(-b + zof)); \
+            glVertex3d((double)(-l + xof), FENCE_HEIGHT, (double)(b + zof));  \
+            glEnd();                                                          \
+            glEnable(GL_DEPTH_TEST);                                          \
+            glEnable(GL_TEXTURE_2D);                                          \
+            glEnable(GL_LIGHTING);                                            \
+        }                                                                     \
+    }
+/*
+#define DRAW_FENCE(l, b, xof, zof)                                        \
+    {                                                                     \
+        glDisable(GL_DEPTH_TEST);                                         \
+        glDisable(GL_TEXTURE_2D);                                         \
+        glDisable(GL_LIGHTING);                                           \
+        glColor3f(1.0, 1.0, 1.0);                                         \
+        glBegin(GL_LINE_STRIP);                                           \
+        glVertex3d((double)(-l + xof), FENCE_HEIGHT, (double)(b + zof));  \
+        glVertex3d((double)(l + xof), FENCE_HEIGHT, (double)(b + zof));   \
+        glVertex3d((double)(l + xof), FENCE_HEIGHT, (double)(-b + zof));  \
+        glVertex3d((double)(-l + xof), FENCE_HEIGHT, (double)(-b + zof)); \
+        glVertex3d((double)(-l + xof), FENCE_HEIGHT, (double)(b + zof));  \
+        glEnd();                                                          \
+        glEnable(GL_DEPTH_TEST);                                          \
+        glEnable(GL_TEXTURE_2D);                                          \
+        glEnable(GL_LIGHTING);                                            \
+    }
+*/
 //some standard colors
 #define BROWN ((color_t){.32, .24, .12, 1})
 #define YELLOW ((color_t){1, 1, 0, 1})
@@ -99,5 +163,24 @@ typedef struct
 {
     float t[3], r[4], s[3];
 } transform_t;
+
+typedef struct
+{
+    double x, z, xof, zof;
+} fence_t;
+
+//enumeration of fenced objects in order
+typedef enum
+{
+    cbrd,
+    chair1,
+    chair2,
+    plant1,
+    plant2,
+    lmp,
+    object,
+    tbl,
+    bball,
+} obj_list;
 
 #endif

@@ -1,11 +1,11 @@
 /*
-*@Filename: cylinder.c
-*@brief:Implements cylinder drawing function
-*certain modifications and additions have been made to professor Schreuder's examples
-*for this code
-*@author:Ravi Prakash Dubey
-*@date:06/28/2018
-*/
+ *@Filename: cylinder.c
+ *@brief:Implements cylinder drawing function
+ *certain modifications and additions have been made to professor Schreuder's
+ *examples for this code
+ *@author:Ravi Prakash Dubey
+ *@date:06/28/2018
+ */
 
 #include "cylinder.h"
 #include <stdlib.h>
@@ -19,11 +19,15 @@ extern float shiny;
 extern float rep;
 void cylinder(const cylinder_t cyl)
 {
-    float spec[4] = {(float)cyl.material.specular.r, (float)cyl.material.specular.g,
-                     (float)cyl.material.specular.b, (float)cyl.material.specular.a};
+    float spec[4] = {(float)cyl.material.specular.r,
+                     (float)cyl.material.specular.g,
+                     (float)cyl.material.specular.b,
+                     (float)cyl.material.specular.a};
 
-    float emis[4] = {(float)cyl.material.emission.r, (float)cyl.material.emission.g,
-                     (float)cyl.material.emission.b, (float)cyl.material.emission.a};
+    float emis[4] = {(float)cyl.material.emission.r,
+                     (float)cyl.material.emission.g,
+                     (float)cyl.material.emission.b,
+                     (float)cyl.material.emission.a};
 
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, cyl.material.shininess);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
@@ -62,7 +66,7 @@ void cylinder(const cylinder_t cyl)
     }
     glEnd(); //  End
 
-    //draw the top   caps
+    // draw the top   caps
     glColor3f(cyl.cyl_col.top.r, cyl.cyl_col.top.g, cyl.cyl_col.top.b);
     glBegin(GL_TRIANGLE_FAN);
     glNormal3f(0, 1, 0);
@@ -75,7 +79,7 @@ void cylinder(const cylinder_t cyl)
     }
     glEnd();
 
-    //draw the bottom  caps
+    // draw the bottom  caps
     glColor3f(cyl.cyl_col.bottom.r, cyl.cyl_col.bottom.g, cyl.cyl_col.bottom.b);
     glBegin(GL_TRIANGLE_FAN);
     glNormal3f(0, -1, 0);

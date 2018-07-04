@@ -1,12 +1,12 @@
 
 /*
-*@Filename: cone.c
-*@brief:Implements cone drawing function
-*certain modifications and additions have been made to professor Schreuder's examples
-*for this code
-*@author:Ravi Prakash Dubey
-*@date:06/28/2018
-*/
+ *@Filename: cone.c
+ *@brief:Implements cone drawing function
+ *certain modifications and additions have been made to professor Schreuder's
+ *examples for this code
+ *@author:Ravi Prakash Dubey
+ *@date:06/28/2018
+ */
 
 #include "cone.h"
 #include <stdlib.h>
@@ -21,13 +21,17 @@ extern float rep;
 
 void cone(const cone_t specs)
 {
-    //Material Properties
+    // Material Properties
 
-    float spec[4] = {(float)specs.material.specular.r, (float)specs.material.specular.g,
-                     (float)specs.material.specular.b, (float)specs.material.specular.a};
+    float spec[4] = {(float)specs.material.specular.r,
+                     (float)specs.material.specular.g,
+                     (float)specs.material.specular.b,
+                     (float)specs.material.specular.a};
 
-    float emis[4] = {(float)specs.material.emission.r, (float)specs.material.emission.g,
-                     (float)specs.material.emission.b, (float)specs.material.emission.a};
+    float emis[4] = {(float)specs.material.emission.r,
+                     (float)specs.material.emission.g,
+                     (float)specs.material.emission.b,
+                     (float)specs.material.emission.a};
 
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, specs.material.shininess);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
@@ -57,7 +61,7 @@ void cone(const cone_t specs)
 
     glEnd();
 
-    //bottom circle
+    // bottom circle
     glBegin(GL_TRIANGLE_FAN);
     glColor3f(specs.bottom.r, specs.bottom.g, specs.bottom.b);
     glTexCoord2f(0.5, 0.5);
@@ -71,7 +75,7 @@ void cone(const cone_t specs)
     }
     glEnd();
 
-    //top circle
+    // top circle
     if (specs.h < specs.H)
     {
         q = m * (specs.H - specs.h);

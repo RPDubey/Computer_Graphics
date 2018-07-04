@@ -4,7 +4,7 @@ LIBS=-lglut -lGLU -lGL -lm
 CLEAN=rm -f final *.o *.a
 
 #  Generic compile and link
-final:final.c display.o keys.o cube.o cylinder.o sphere.o cone.o objects.o loadtexbmp.o fatal.o errcheck.o
+final:final.c display.o keys.o cube.o cylinder.o sphere.o cone.o objects.o loadtexbmp.o fatal.o object.o errcheck.o 
 	gcc $(CFLG) -o $@ $^ $(LIBS)
 
 %.o:%.c %.h common.h

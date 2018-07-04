@@ -23,7 +23,7 @@ unsigned int texture[NUMBER_OF_TEXTURE]; //  Texture names
 
 int th = 25;  // Azimuth of view angle
 int ph = 45;  // Elevation of view angle
-int axes = 0; //determines axes options
+int axes = 1; //determines axes options
 
 double dim = DIM; // Dimensions of orthogonal box
 double asp = 1;   //aspect ration
@@ -52,9 +52,9 @@ double box_pos[3] = {XPOS, YPOS, ZPOS}; //transparent box position
 
 double thyx;
 double thxz;
-double le = 10;
-double br = 10;
-double he = 10;
+double le = BOX_LE;
+double br = BOX_BR;
+double he = BOX_HE;
 double rad = 1;
 double del = 0.2;
 double temp_p[3];
@@ -81,10 +81,13 @@ double distance = 1.4 * DIM;
 int local = 0;
 int side = 0;
 float sco = 20;
+int ld_obj;
 
+double ofst;
 /*
  *  Start up GLUT and tell it what to do
  */
+int LoadOBJ(const char *file);
 
 int main(int argc, char *argv[])
 {
@@ -94,7 +97,7 @@ int main(int argc, char *argv[])
       //initil eye and object position
       Ex1 = 0;
       Ey1 = 20;
-      Ez1 = 65;
+      Ez1 = 45;
       Cx = 0;
       Cy = 20;
       Cz = Ez1 - 1;
@@ -106,11 +109,12 @@ int main(int argc, char *argv[])
       unorm[1] = SIN(thyx);
       unorm[2] = COS(thyx) * COS(thxz);
 
+      ofst = 1 + dim / zratio;
+
       //  Initialize GLUT and process user parameters
       glutInit(&argc, argv);
       //  Request true color window,double buffered,z buffer
       glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA);
-      //  Request 500 x 500 pixel window
       glutInitWindowSize(1024, 1024);
       //  Create the window
       glutCreateWindow("Ravi Prakash Dubey - Final");
@@ -144,6 +148,10 @@ int main(int argc, char *argv[])
       texture[19] = LoadTexBMP("./texture/soil1.bmp");
       texture[20] = LoadTexBMP("./texture/door.bmp");
       texture[21] = LoadTexBMP("./texture/glaas.bmp");
+
+      //  Load object
+      ld_obj = LoadOBJ("./IronMan.obj");
+      ErrCheck("Main");
 
       //  Pass control to GLUT so it can interact with the user
       glutMainLoop();
